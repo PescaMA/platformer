@@ -13,48 +13,48 @@ class MapObj
 {
 public:
     std::map <std::pair<int,int>,int> currentMap;
-void saveMap(std::string fileName)
-{
-    remove(fileName.c_str());
-    std::ofstream fout(fileName);
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin();it!=currentMap.end();it++)
-        fout<<(it->first).first<<' '<<(it->first).second<<' '<<it->second<<'\n';
-    fout.close();
-}
-void loadMap(std::string fileName)
-{
-    currentMap.clear();
-    std::ifstream fin(fileName);
-    if(!fin)
-        return;
-    std::pair<int,int> coord;
-    int objectId;
-    while(fin>>coord.first)
+    void saveMap(std::string fileName)
     {
-        fin>>coord.second>>objectId;
-        currentMap[coord]=objectId;
+        remove(fileName.c_str());
+        std::ofstream fout(fileName);
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            fout<<(it->first).first<<' '<<(it->first).second<<' '<<it->second<<'\n';
+        fout.close();
     }
-    fin.close();
-}
-void drawMap(int transparency)
-{
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin();it!=currentMap.end();it++)
-        AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
-}
-void checkMapCollision(std::pair<int,int> coord)
-{
-    coord.first=coord.first/32*32;
-    coord.second=coord.second/32*32;
-    if (currentMap.find(coord) != currentMap.end())
-        AllObjects[currentMap[coord]]->collision(coord.first,coord.second);
-}
-void proximityCollisions()
-{
-    for(float i=0;i<=1;i+=0.5)
-       for(float j=0;j<=1;j+=0.5)
-            checkMapCollision({myPlayer.getHitbox().x+myPlayer.hitbox.width*i,(myPlayer.getHitbox().y+myPlayer.hitbox.height*j)});
-}
-}myMap;
+    void loadMap(std::string fileName)
+    {
+        currentMap.clear();
+        std::ifstream fin(fileName);
+        if(!fin)
+            return;
+        std::pair<int,int> coord;
+        int objectId;
+        while(fin>>coord.first)
+        {
+            fin>>coord.second>>objectId;
+            currentMap[coord]=objectId;
+        }
+        fin.close();
+    }
+    void drawMap(int transparency)
+    {
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
+    }
+    void checkMapCollision(std::pair<int,int> coord)
+    {
+        coord.first=coord.first/32*32;
+        coord.second=coord.second/32*32;
+        if (currentMap.find(coord) != currentMap.end())
+            AllObjects[currentMap[coord]]->collision(coord.first,coord.second);
+    }
+    void proximityCollisions()
+    {
+        for(float i=0; i<=1; i+=0.5)
+            for(float j=0; j<=1; j+=0.5)
+                checkMapCollision({myPlayer.getHitbox().x+myPlayer.hitbox.width*i,(myPlayer.getHitbox().y+myPlayer.hitbox.height*j)});
+    }
+} myMap;
 
 
 class Game

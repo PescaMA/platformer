@@ -3,10 +3,12 @@ extern Texture2D ASSET_BLOCKS;
 extern char doing[21];
 extern const int screenWidth;
 extern const int screenHeight;
+extern Object **AllObjects;
 class LevelEditor
 {
     bool exiting=false;
-    const int static MAX_PAGES=10;
+    static int constexpr lastOnPage[2]={0,5};
+    const int static MAX_PAGES=sizeof(lastOnPage)/sizeof(lastOnPage[0])-1;
     FixedButton  buttons[MAX_PAGES];
     int currentPage=0;
     Exit exit;

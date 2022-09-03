@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1662212073 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
+1662220725 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
 	<iostream>
 	<string.h>
 	"MyHeaders/Loader.h"
@@ -43,11 +43,11 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1662213787 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1662232438 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	"ExtendedRaylib.h"
 	"Objects.h"
 
-1662220692 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1662225177 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
 	"Objects.h"
 	"ExtendedRaylib.h"
 	<map>
@@ -55,7 +55,7 @@
 	<fstream>
 	<stdio.h>
 
-1662110266 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1662227035 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
 	"ExtendedRaylib.h"
 
 1661693126 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
