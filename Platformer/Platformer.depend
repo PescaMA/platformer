@@ -1,0 +1,73 @@
+# depslib dependency file v1.0
+1662212073 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
+	<iostream>
+	<string.h>
+	"MyHeaders/Loader.h"
+	"MyHeaders/Settings.h"
+	"MyHeaders/Game.h"
+	"MyHeaders/LevelEditor.h"
+
+1659021123 d:\code blocks\probleme interesante\raylib\platformer\headers\allheaders.h
+	"Loader.h"
+	"Game.h"
+	"LevelEditor.h"
+	"Settings.h"
+
+1659103577 d:\code blocks\probleme interesante\raylib\platformer\headers\loader.h
+	"raylib.h"
+
+1659103400 d:\code blocks\probleme interesante\raylib\platformer\headers\game.h
+
+1635800772 c:\raylib\raylib\raylib\src\raylib.h
+	<stdarg.h>
+	<stdbool.h>
+
+1659019075 source:d:\code blocks\probleme interesante\raylib\platformer\headers\allheaders.h
+	"raylib.h"
+	"Loader.h"
+	"Game.h"
+
+1659019667 d:\code blocks\probleme interesante\raylib\platformer\headers\leveleditor.h
+
+1659019648 d:\code blocks\probleme interesante\raylib\platformer\headers\settings.h
+
+1659020170 d:\code blocks\probleme interesante\raylib\platformer\headers\constants.h
+	"raylib.h"
+
+1659021123 d:\code blocks\probleme interesante\raylib\platformer\headers\global_variables.h
+	"raylib.h"
+
+1659021123 d:\code blocks\probleme interesante\raylib\platformer\myheaders\allheaders.h
+	"Loader.h"
+	"Game.h"
+	"LevelEditor.h"
+	"Settings.h"
+
+1662213787 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+	"ExtendedRaylib.h"
+	"Objects.h"
+
+1662220692 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+	"Objects.h"
+	"ExtendedRaylib.h"
+	<map>
+	<utility>
+	<fstream>
+	<stdio.h>
+
+1662110266 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+	"ExtendedRaylib.h"
+
+1661693126 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+	"ExtendedRaylib.h"
+
+1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
+	"raylib.h"
+
+1661695868 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
+	"raylib.h"
+	<chrono>
+
+1662215938 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+	"ExtendedRaylib.h"
+
