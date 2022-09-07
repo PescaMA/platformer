@@ -8,88 +8,126 @@ class Player
 {
     #define smart_paint(xStart,size,xOrientation,yOrientation) {xStart ,0, size*xOrientation, size*yOrientation};
 public:
-    float xCoord=100,xVelocity=0;
+    float xCoord=40,xVelocity=0,xMovement;
     const float MAX_X_VELOCITY_PER_SECOND=180;
-    float  CURRENT_X_VELOCITY_INCREASE;
-    float  CURRENT_MAX_X_VELOCITY;
+    const float X_SECONDS_UNTIL_MAX=2;
 
-    float yCoord=0,yVelocity=0;
-    const float MAX_Y_VELOCITY_PER_SECOND=300;
-    float  CURRENT_Y_VELOCITY_INCREASE;
-    float  CURRENT_MAX_Y_VELOCITY;
+    float yCoord=250,yVelocity=0,yMovement;
+    const float MAX_Y_VELOCITY_PER_SECOND=10;
+    const float Y_SECONDS_UNTIL_MAX=0.2;
 
     float xFacing=1;
+    long long prevTime=0;
 
     Rectangle const hitbox={25,25,20,39};
     bool hideHitbox=false;
+    void pause()
+    {
+
+    }
     Rectangle getHitbox()
     {
         return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
     }
     void move()
     {
-        int fps=GetFPS();
-        if(!fps)
+
+        if(!prevTime)
+        {
+            prevTime=getTimeMCS();
             return;
-        moveOx(fps);
-        moveOy(fps);
+        }
+        long long currentTime=getTimeMCS();
+        ///moveOx(currentTime);
+        moveOy(currentTime);
         if(xFacing*xVelocity<0)
             xFacing=-xFacing;
-    }
-    void moveOy(int fps)
-    {
-        CURRENT_MAX_Y_VELOCITY=MAX_Y_VELOCITY_PER_SECOND/fps;
-        CURRENT_Y_VELOCITY_INCREASE=CURRENT_MAX_Y_VELOCITY/2/fps;
+        prevTime=currentTime;
 
-        yVelocity+=CURRENT_Y_VELOCITY_INCREASE;
+    }
+    void moveOy(long long currentTime)
+    { /// TO DO: FIX THIS MESS
+        float timeDiff=(float)(1LL*currentTime-prevTime);
+        const float MCS_MAX_VELOCITY=MAX_Y_VELOCITY_PER_SECOND/1000000;
+        const float MCS_GAINED_VELOCITY=MCS_MAX_VELOCITY/1000000/Y_SECONDS_UNTIL_MAX;
+        if(IsKeyPressed(KEY_SPACE))
+            yVelocity=-0.00009;
+         if(xVelocity+timeDiff*MCS_GAINED_VELOCITY>MCS_MAX_VELOCITY)
+         {
+             float MCS_increasing=(MCS_MAX_VELOCITY-yVelocity)/MCS_GAINED_VELOCITY;
+             yMovement=MCS_increasing*yVelocity
+             + MCS_increasing * (MCS_GAINED_VELOCITY + 1) * MCS_increasing / 2;
+             yMovement+=(timeDiff-MCS_increasing) * MCS_MAX_VELOCITY;
+             yVelocity=MCS_MAX_VELOCITY;
+             std::cout<<"MAX";
+         }
+         else
+         {
+             yMovement=timeDiff*yVelocity+((timeDiff+1)*MCS_GAINED_VELOCITY*timeDiff/2);
+             yVelocity+=timeDiff*MCS_GAINED_VELOCITY;
+         }
+        yCoord+=yMovement;
+
+        std::cout<<yVelocity<<'\n';
+    }
+    void OldmoveOy(long long currentTime)
+    {
+        float timeDiff=(float)(1LL*currentTime-prevTime)/1000000;
+        float max_velocity=MAX_Y_VELOCITY_PER_SECOND*timeDiff;
+        float increase=max_velocity/Y_SECONDS_UNTIL_MAX*timeDiff;
+
+        yVelocity+=increase;
 
         if(IsKeyPressed(KEY_SPACE))
-            yVelocity-=CURRENT_Y_VELOCITY_INCREASE*100;
+            yVelocity=-2;
 
-        if(yVelocity>CURRENT_MAX_Y_VELOCITY)
-            yVelocity=CURRENT_MAX_Y_VELOCITY;
+        if(yVelocity>max_velocity)
+            yVelocity=max_velocity;
 
         yCoord+=yVelocity;
+        std::cout<<yVelocity<<'\n';
     }
-    void moveOx(int fps)
+    void moveOx(long long currentTime)
     {
-
-        CURRENT_MAX_X_VELOCITY=MAX_X_VELOCITY_PER_SECOND/fps;
-        CURRENT_X_VELOCITY_INCREASE=CURRENT_MAX_X_VELOCITY/2/fps;
+        float timeDiff=(float)(1LL*currentTime-prevTime)/1000000;
+        float max_velocity=MAX_X_VELOCITY_PER_SECOND*timeDiff;
+        float increase=max_velocity/X_SECONDS_UNTIL_MAX*timeDiff;
 
         bool isNotMoving=true;
+
         if(IsKeyDown(KEY_RIGHT) && xVelocity>=0)
         {
-            xVelocity+=CURRENT_X_VELOCITY_INCREASE;
+            xVelocity+=increase;
             isNotMoving=false;
         }
         if(IsKeyDown(KEY_LEFT)&& xVelocity<=0)
         {
-            xVelocity-=CURRENT_X_VELOCITY_INCREASE;
+            xVelocity-=increase;
             isNotMoving=false;
         }
         if(isNotMoving)
         {
-            if(xVelocity>CURRENT_X_VELOCITY_INCREASE*5)
-                xVelocity-=CURRENT_X_VELOCITY_INCREASE*5;
+            if(xVelocity>increase*5)
+                xVelocity-=increase*5;
             else
-                if(xVelocity<-CURRENT_X_VELOCITY_INCREASE*5)
-                    xVelocity+=CURRENT_X_VELOCITY_INCREASE*5;
+                if(xVelocity<-increase*5)
+                    xVelocity+=increase*5;
                 else
                     xVelocity=0;
         }
-        if(xVelocity>CURRENT_MAX_X_VELOCITY)
-            xVelocity=CURRENT_MAX_X_VELOCITY;
-        if(xVelocity< -CURRENT_MAX_X_VELOCITY)
-            xVelocity=-CURRENT_MAX_X_VELOCITY;
+        if(xVelocity>max_velocity)
+            xVelocity=max_velocity;
+        if(xVelocity< -max_velocity)
+            xVelocity=-max_velocity;
         xCoord+=xVelocity;
 
 
     }
     void reset()
     {
-        xCoord=100,yCoord=0;
+        xCoord=40;yCoord=250;
         xVelocity=yVelocity=0;
+        prevTime=0;
     }
     void draw(int transparency)
     {
@@ -168,8 +206,8 @@ class Block : public Object
     Block(Texture2D image,int imageX,Rectangle hitbox):Object(image,imageX,hitbox){}
     void effect(int x,int y)
     {
-        int lastX=myPlayer.xCoord-myPlayer.xVelocity;
-        int lastY=myPlayer.yCoord-myPlayer.yVelocity;
+        int lastX=myPlayer.xCoord-myPlayer.xMovement;
+        int lastY=myPlayer.yCoord-myPlayer.yMovement;
         if(up || down)
         {
             myPlayer.yVelocity=0;

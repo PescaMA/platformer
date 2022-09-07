@@ -5,6 +5,16 @@
 #include "raylib.h"
 #endif // RAYLIB.H
 #include <chrono>
+long long getTimeMS()
+{
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+}
+long long getTimeMCS()
+{
+    using namespace std::chrono;
+    return duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
+}
 class Misc;
 struct Txt;
 struct TxtAligned;
@@ -306,6 +316,7 @@ struct FixedButton : public Button
         DrawText(text,centerX,centerY,fontSize,color.text);
     }
 };
+
 class KBD_Move
 {
     static const int INITIAL_DELAY=500;
@@ -344,9 +355,10 @@ class KBD_Move
     }
     void run()
     {
-        long long time = theTime();
+        long long time = getTimeMS();
+
         if(initialTime<0)
-            initialTime=theTime();
+            initialTime=getTimeMS();
         bool timePassed=false;
         if(time-initialTime>INITIAL_DELAY+MOVEMENT_DELAY)
         {
@@ -380,12 +392,8 @@ class KBD_Move
 
             return;
         }
-        initialTime=theTime();
+        initialTime=getTimeMS();
     }
-    long long theTime()
-    {
-        using namespace std::chrono;
-        return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-    }
+
 };
 #endif // EXTENDED_RAYLIB

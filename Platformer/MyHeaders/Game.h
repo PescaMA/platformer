@@ -75,6 +75,7 @@ public:
     void exitscreen()
     {
         draw(100);
+        myPlayer.pause();
         exit.kbdMove.run();
         if(IsKeyPressed(KEY_ESCAPE) || exit.stay())
         {
