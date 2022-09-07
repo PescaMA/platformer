@@ -52,11 +52,12 @@ public:
         const float MCS_GAINED_VELOCITY=MCS_MAX_VELOCITY/1000000/Y_SECONDS_UNTIL_MAX;
         if(IsKeyPressed(KEY_SPACE))
             yVelocity=-0.00009;
-         if(xVelocity+timeDiff*MCS_GAINED_VELOCITY>MCS_MAX_VELOCITY)
+         if(yVelocity+timeDiff*MCS_GAINED_VELOCITY>MCS_MAX_VELOCITY)
          {
              float MCS_increasing=(MCS_MAX_VELOCITY-yVelocity)/MCS_GAINED_VELOCITY;
              yMovement=MCS_increasing*yVelocity
-             + MCS_increasing * (MCS_GAINED_VELOCITY + 1) * MCS_increasing / 2;
+             + MCS_increasing * MCS_GAINED_VELOCITY * (1+MCS_INCREASING)/ 2;
+
              yMovement+=(timeDiff-MCS_increasing) * MCS_MAX_VELOCITY;
              yVelocity=MCS_MAX_VELOCITY;
              std::cout<<"MAX";
@@ -66,6 +67,7 @@ public:
              yMovement=timeDiff*yVelocity+((timeDiff+1)*MCS_GAINED_VELOCITY*timeDiff/2);
              yVelocity+=timeDiff*MCS_GAINED_VELOCITY;
          }
+
         yCoord+=yMovement;
 
         std::cout<<yVelocity<<'\n';
