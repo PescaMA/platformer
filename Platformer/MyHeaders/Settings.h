@@ -29,7 +29,7 @@ public:
             kbdMove.reset();
             return true;
         }
-        return yes.Lclicked() ;
+        return false;
     }
     bool stay()  {return  no.Lclicked() ;}
 };
@@ -52,11 +52,18 @@ public:
     {
 
         if(playOn.Lclicked())
+        {
             strcpy(doing,"Game");
+            Loader::loadMap("Levels/Lvl_1.txt");
+        }
         if(lvlSelect.Lclicked())
             strcpy(doing,"LevelSelect");
         if(lvlEditor.Lclicked())
+        {
             strcpy(doing,"LevelEditor");
+            Loader::loadMap("Levels/Lvl_Editor.txt");
+        }
+
         if(exit.Lclicked())
             strcpy(doing,"Exiting");
         if(strcmp(doing,"MainMenu"))

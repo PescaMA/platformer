@@ -5,16 +5,11 @@
 #include "raylib.h"
 #endif // RAYLIB.H
 #include <chrono>
-long long getTimeMS()
-{
-    using namespace std::chrono;
-    return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
-}
-long long getTimeMCS()
-{
-    using namespace std::chrono;
-    return duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
-}
+
+int mouseAction;
+
+long long getTimeMS();
+long long getTimeMCS();
 class Misc;
 struct Txt;
 struct TxtAligned;
@@ -25,6 +20,7 @@ struct ButtonOnOff;
 struct ButtonInput;
 struct FixedButton;
 class KBD_Move;
+class GameTickRate;
 class Misc
 {
 public:
@@ -177,6 +173,8 @@ struct Button
         if (CheckCollisionPointRec(mouse, rect))
         {
             isHovering=true;
+            mouseAction=MOUSE_CURSOR_POINTING_HAND;
+            SetMouseCursor(mouseAction);
             if(IsMouseButtonPressed(nr))
                 return true;
         }
@@ -351,6 +349,7 @@ class KBD_Move
     {
         myArray[currentPosition]->forceHover=false;
         currentPosition=defaulposition;
+        initialTime=-3;
 
     }
     void run()
@@ -395,5 +394,45 @@ class KBD_Move
         initialTime=getTimeMS();
     }
 
+};
+long long getTimeMS()
+{
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+}
+long long getTimeMCS()
+{
+    using namespace std::chrono;
+    return duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
+}
+class GameTickRate
+{
+    int tickrate;
+    long long prevTime;
+    public:
+    GameTickRate(int tickrate)
+    {
+        this->tickrate=1000000/tickrate;
+        reset();
+    }
+    void reset()
+    {
+        prevTime=0;
+    }
+    void pause()
+    {
+        prevTime-=1LL*getTimeMCS();
+    }
+    int getFrames()
+    {
+        long long currentTime=getTimeMCS();
+        if(!prevTime)
+            prevTime=currentTime;
+        if(prevTime<0)
+            prevTime+=currentTime;
+        int result = (currentTime-prevTime) / tickrate;
+        prevTime+= tickrate * result;
+        return result;
+    }
 };
 #endif // EXTENDED_RAYLIB

@@ -9,6 +9,7 @@ extern Texture2D ASSET_CHARACTER;
 extern Player myPlayer;
 extern char doing[21];
 extern Object **AllObjects;
+extern bool hideHitbox;
 class MapObj
 {
 public:
@@ -17,6 +18,8 @@ public:
     {
         remove(fileName.c_str());
         std::ofstream fout(fileName);
+        fout<<"start "<<myStart.x<<' '<<myStart.y<<'\n';
+        fout<<"finish "<<myFinish.x<<' '<<myFinish.y<<'\n';
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
             fout<<(it->first).first<<' '<<(it->first).second<<' '<<it->second<<'\n';
         fout.close();
@@ -26,7 +29,20 @@ public:
         currentMap.clear();
         std::ifstream fin(fileName);
         if(!fin)
-            return;
+        {std::cout<<"Error";return;}
+
+        char c[10];
+        fin>>c;
+        if(strcmp(c,"start"))
+        {std::cout<<"Error";return;}
+        fin>>myStart.x>>myStart.y;
+        fin>>c;
+        if(strcmp(c,"finish"))
+        {std::cout<<"Error";return;}
+        fin>>myFinish.x>>myFinish.y;
+
+        myStart.specialEffect(); /// in this case sets player position
+
         std::pair<int,int> coord;
         int objectId;
         while(fin>>coord.first)
@@ -38,21 +54,35 @@ public:
     }
     void drawMap(int transparency)
     {
+        myStart.draw(transparency);
+        myFinish.draw(transparency);
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
             AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
     }
-    void checkMapCollision(std::pair<int,int> coord)
+    void checkAllCollisions()
     {
-        coord.first=coord.first/32*32;
-        coord.second=coord.second/32*32;
-        if (currentMap.find(coord) != currentMap.end())
-            AllObjects[currentMap[coord]]->collision(coord.first,coord.second);
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , myPlayer.getHitbox()))
+                AllObjects[it->second]->collisionEffect((it->first).first , (it->first).second);
     }
-    void proximityCollisions()
+    bool checkAllCollisionsE(Rectangle entity)
     {
-        for(float i=0; i<=1; i+=0.5)
-            for(float j=0; j<=1; j+=0.5)
-                checkMapCollision({myPlayer.getHitbox().x+myPlayer.hitbox.width*i,(myPlayer.getHitbox().y+myPlayer.hitbox.height*j)});
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+                return true;
+        return false;
+    }
+    void deleteClick(Vector2 pos)
+    {
+        Rectangle entity={pos.x,pos.y,1,1};
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+            {
+                currentMap.erase(it);
+
+                return;
+            }
+
     }
 } myMap;
 
@@ -60,22 +90,45 @@ public:
 class Game
 {
     Exit exit;
+    GameTickRate gameTick=GameTickRate(200);
 public:
     bool exiting=false;
+    void commands()
+    {
+        if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))
+            hideHitbox=!hideHitbox;
+        if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_R))
+            myPlayer.reset();
+    }
     void run()
     {
         if(exiting)
             return exitscreen();
-        myPlayer.move();
-        myMap.proximityCollisions();
+        commands();
+        myPlayer.checkInput();
+        for(int i=gameTick.getFrames()-1;i>=0;i--)
+        {
+            myPlayer.move();
+            if(i%5==0)
+            {
+                myPlayer.isGrounded=false;
+                myMap.checkAllCollisions();
+                myPlayer.newMovement();
+            }
+
+        }
+
         draw();
+
         if(IsKeyPressed(KEY_ESCAPE))
+        {
             exiting=true;
+            gameTick.pause();
+        }
     }
     void exitscreen()
     {
         draw(100);
-        myPlayer.pause();
         exit.kbdMove.run();
         if(IsKeyPressed(KEY_ESCAPE) || exit.stay())
         {
@@ -98,8 +151,8 @@ public:
 
         BeginDrawing();
         ClearBackground(T_BLUE);
-        myPlayer.draw(transparency);
         myMap.drawMap(transparency);
+        myPlayer.draw(transparency);
         if(transparency!=255)
             exit.run();
         EndDrawing();
