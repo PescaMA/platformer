@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1667161029 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
+1667827111 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
 	<iostream>
 	<string.h>
 	"MyHeaders/Loader.h"
@@ -43,32 +43,36 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1667160621 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1667251992 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	"ExtendedRaylib.h"
 	"Objects.h"
 	<map>
 
-1667160936 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1667846255 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
 	"Objects.h"
 	"ExtendedRaylib.h"
-	<map>
-	<utility>
-	<fstream>
-	<stdio.h>
 
-1667160678 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1668458348 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
 	"ExtendedRaylib.h"
 
-1663506130 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+1667826761 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
 	"ExtendedRaylib.h"
 
 1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
 	"raylib.h"
 
-1663787483 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
+1668439519 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
 	"raylib.h"
 	<chrono>
 
-1667160497 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+1668456728 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+	"ExtendedRaylib.h"
+	"Player.h"
+	<map>
+	<utility>
+	<fstream>
+	<stdio.h>
+
+1668098936 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
 	"ExtendedRaylib.h"
 

@@ -21,6 +21,10 @@ struct ButtonInput;
 struct FixedButton;
 class KBD_Move;
 class GameTickRate;
+struct Directions
+{
+    int left,up,right,down;
+};
 class Misc
 {
 public:
@@ -41,6 +45,11 @@ public:
         }
         Sw=GetScreenWidth();
         Sh=GetScreenHeight();
+    }
+    template <class type>
+    static type abs(type a)
+    {
+        return (a<0) ? -a : a;
     }
     static bool same_color(Color a,Color b)
     {

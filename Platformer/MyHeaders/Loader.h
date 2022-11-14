@@ -9,6 +9,9 @@ int fps;
 Texture2D ASSET_CHARACTER;
 Texture2D ASSET_BLOCKS;
 Texture2D ASSET_SPECIAL;
+Object **AllObjects;
+int nrOfObjects;
+std::map<int,int> UID_pairing;
 
 
 void loadAllObjects();
@@ -35,9 +38,7 @@ public:
     static void mainloop();
     static void loadMap(const char levelName[]);
 };
-Object **AllObjects;
-int nrOfObjects;
-std::map<int,int> UID_pairing;
+
 void loadAllObjects()
 {
     myStart=Start(0,2,ASSET_SPECIAL,0,{5,0,22,64});

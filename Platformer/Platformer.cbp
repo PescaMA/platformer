@@ -19,7 +19,7 @@
 				<Option output="bin/Release/Platformer" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="raylib" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -37,6 +37,7 @@
 		<Unit filename="MyHeaders/LevelEditor.h" />
 		<Unit filename="MyHeaders/Loader.h" />
 		<Unit filename="MyHeaders/Objects.h" />
+		<Unit filename="MyHeaders/Player.h" />
 		<Unit filename="MyHeaders/Settings.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>

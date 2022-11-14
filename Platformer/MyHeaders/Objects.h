@@ -1,137 +1,28 @@
 #ifndef OBJECTS
 #define OBJECTS
-
 #include "ExtendedRaylib.h"
+#include "Player.h"
+#include <map>
+#include <utility> /// for pair
+#include <fstream> /// for accessing stored levels
+#include <stdio.h> /// for replacing (meaning deleting) current level
 extern Texture2D ASSET_BLOCKS;
-extern Texture2D ASSET_CHARACTER;
-bool hideHitbox=false;
-class Player
-{
-    #define smart_paint(xStart,size,xOrientation,yOrientation) {xStart ,0, size*xOrientation, size*yOrientation};
-public:
-    float initialXCoord,initialYCoord;
+extern char doing[21];
+extern std::map<int,int> UID_pairing;
+class Object;
+class Block;
+class Start;
+class Finish;
+class MapObj;
 
-    float xCoord,xVelocity=0,xMovement;
-    const float MAX_X_VELOCITY_PER_FRAME=0.8;
-    const float X_SECONDS_UNTIL_MAX=1;
-    float const XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/200;
-    bool isNotMoving;
-    int XDirection=0;
-
-    float yCoord,yVelocity=0,yMovement;
-    const float MAX_Y_VELOCITY_PER_FRAME=2;
-    const float Y_SECONDS_UNTIL_MAX=1.5;
-    float const YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
-    bool isGrounded=false;
-
-    float xFacing=1;
-
-    Rectangle const hitbox={25,25,20,39};
-
-    Rectangle getHitbox()
-    {
-
-        return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
-    }
-    void move()
-    {
-        moveOx();
-        moveOy();
-        if(xFacing*xVelocity<0)
-            xFacing=-xFacing;
-    }
-    void checkInput()
-    {
-        if(isGrounded && IsKeyPressed(KEY_SPACE))
-        {
-            yVelocity=-YVelocityGain*175;
-            isGrounded=false;
-        }
-
-
-        isNotMoving=true;
-        XDirection=0;
-        if(IsKeyDown(KEY_RIGHT) && xVelocity>=0)
-        {
-            XDirection=1;
-            isNotMoving=false;
-        }
-        if(IsKeyDown(KEY_LEFT)&& xVelocity<=0)
-        {
-            XDirection=-1;
-            isNotMoving=false;
-        }
-    }
-    void newMovement()
-    {
-        xMovement=yMovement=0;
-    }
-    void moveOy()
-    {
-
-        yVelocity+=YVelocityGain;
-
-        if(yVelocity>MAX_Y_VELOCITY_PER_FRAME)
-            yVelocity=MAX_Y_VELOCITY_PER_FRAME;
-        yMovement+=yVelocity;
-        yCoord+=yVelocity;
-    }
-    void moveOx()
-    {
-        xVelocity+=XVelocityGain*XDirection;
-        if(isNotMoving)
-        {
-            if(xVelocity>XVelocityGain*5)
-                xVelocity-=XVelocityGain*5;
-            else
-                if(xVelocity<-XVelocityGain*5)
-                    xVelocity+=XVelocityGain*5;
-                else
-                    xVelocity=0;
-        }
-        if(xVelocity>MAX_X_VELOCITY_PER_FRAME)
-            xVelocity=MAX_X_VELOCITY_PER_FRAME;
-        if(xVelocity< -MAX_X_VELOCITY_PER_FRAME)
-            xVelocity=-MAX_X_VELOCITY_PER_FRAME;
-
-        xMovement+=xVelocity;
-        xCoord+=xVelocity;
-
-
-    }
-    void reset()
-    {
-        xCoord=initialXCoord;
-        yCoord=initialYCoord;
-        xVelocity=yVelocity=0;
-        xFacing=1;
-        isGrounded=false;
-        XDirection=0;
-    }
-    void draw(int transparency)
-    {
-        Color white=WHITE;
-        white.a=transparency;
-        Rectangle rect=smart_paint(0,64,xFacing,1);
-        Vector2 position={xCoord,yCoord};
-        DrawTextureRec(ASSET_CHARACTER,rect,position,white);
-        if(!hideHitbox)
-            DrawRectangleLinesEx(getHitbox(),1,GREEN);
-    }
-
-}myPlayer;
 class Object
 {
     /// D,U,L,R = directions (down, ...), p = player, b = block
-    #define UbDp (1.0f*(hitbox.y+y)  -  (lastY+myPlayer.hitbox.y+myPlayer.hitbox.height))
-    #define LbRp (1.0f*(x+hitbox.x)  -  (lastX+myPlayer.hitbox.x+myPlayer.hitbox.width))
-    #define UpDb (1.0f*(lastY+myPlayer.hitbox.y)  -  (y+hitbox.y+hitbox.height))
-    #define LpRb (1.0f*(lastX+myPlayer.hitbox.x)  -  (x+hitbox.x+hitbox.width))
-
-    #define up    UbDp >= 0 /// if player is above the block
-    #define down  UpDb >= 0 /// if player is below the block
-    #define left  LbRp >= 0 /// if player is to the left of the block
-    #define right LpRb >= 0 /// if player is to the left of the block
+    /*#define UbDp (1.0f*(hitbox.y+y)  -  (myPlayer.getPrevHitbox().y+myPlayer.hitbox.height))
+    #define LbRp (1.0f*(x+hitbox.x)  -  (myPlayer.getPrevHitbox().x+myPlayer.hitbox.width))
+    #define UpDb (1.0f*(myPlayer.getPrevHitbox().y)  -  (y+hitbox.y+hitbox.height))
+    #define LpRb (1.0f*(myPlayer.getPrevHitbox().x)  -  (x+hitbox.x+hitbox.width))
+*/
     public:
     Texture2D image;
     int imageX;
@@ -139,6 +30,15 @@ class Object
     int page;
     Rectangle hitbox;
     Object(){}
+    Directions getDir(int x,int y)
+    {
+        Directions rez;
+        rez.up=y+hitbox.y;
+        rez.down=y+hitbox.y+hitbox.height;
+        rez.left=x+hitbox.x;
+        rez.right=x+hitbox.x+hitbox.width;
+        return rez;
+    }
     Rectangle getHitbox(int x,int y)
     {
         return {x+hitbox.x,y+hitbox.y,hitbox.width,hitbox.height};
@@ -164,21 +64,7 @@ class Object
         }
 
     }
-    void movePlayer(char const c[10],int x,int y)
-    {
-        if(!strcmp(c,"up"))
-        {
-            myPlayer.yCoord=y+hitbox.y-myPlayer.hitbox.y-myPlayer.hitbox.height;
-            myPlayer.isGrounded=true;
-        }
-
-        if(!strcmp(c,"left"))
-            myPlayer.xCoord=x+hitbox.x-myPlayer.hitbox.x-myPlayer.hitbox.width;
-        if(!strcmp(c,"down"))
-            myPlayer.yCoord=y+hitbox.y+hitbox.height-myPlayer.hitbox.y;
-        if(!strcmp(c,"right"))
-            myPlayer.xCoord=x+hitbox.x+hitbox.width-myPlayer.hitbox.x;
-    }
+    void movePlayer(char const c[10],int x,int y); /// Had to declare elsewhere
     void virtual collisionEffect(int x,int y){}
     void virtual specialEffect(){}
     Vector2 const virtual getImageSize()
@@ -193,6 +79,7 @@ class Object
     }
 
 };
+extern Object **AllObjects;
 class Block : public Object
 {
     public:
@@ -200,45 +87,20 @@ class Block : public Object
     Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){}
     void collisionEffect(int x,int y)
     {
-        int lastX=myPlayer.xCoord-myPlayer.xMovement;
-        int lastY=myPlayer.yCoord-myPlayer.yMovement;
-        bool UD = up || down;
-        bool LR = left || right;
-        if(UD && LR)
-        {
-            float vertical,horizontal;
-            if(myPlayer.yMovement>0)
-                vertical=1.0f*UbDp/myPlayer.yMovement;
-            else
-                vertical=-1.0f*UpDb/myPlayer.yMovement;
-            if(myPlayer.xMovement>0)
-                horizontal=1.0f*LbRp/myPlayer.xMovement;
-            else
-                horizontal=-1.0f*LpRb/myPlayer.xMovement;
-            if(vertical!=1/0.0f && horizontal!=1/0.0f && vertical >= 0 && horizontal >= 0)
-            {
-                if(vertical<horizontal)
-                    LR=false;
-                else
-                    UD=false;
-            }
-        }
-        if(UD)
-        {
-            myPlayer.yVelocity=0;
-            if(up)
-                movePlayer("up",x,y);
-            else
-                movePlayer("down",x,y);
-        }
-        if(LR)
-        {
-            myPlayer.xVelocity=0;
-            if(left)
-                movePlayer("left",x,y);
-            else
-                movePlayer("right",x,y);
-        }
+        Directions playerDir=myPlayer.getOldDir();
+        Directions objDir=getDir(x,y);
+        int up   =  objDir.up - playerDir.down;
+        int down =  playerDir.up - objDir.down;
+        int left =  objDir.left - playerDir.right;
+        int right = playerDir.left - objDir.right;
+        if(up>=0)
+            movePlayer("up",x,y);else
+        if(down>=0)
+            movePlayer("down",x,y);
+        if(left>=0)
+            movePlayer("left",x,y);else
+        if(right>=0)
+            movePlayer("right",x,y);
     }
 };
 Block Block1,Block2,Block3,Block4,Block5;
@@ -251,12 +113,16 @@ class Start : public Object
     Start(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){}
     void specialEffect()
     {
-        myPlayer.xCoord=myPlayer.initialXCoord=x+16-myPlayer.hitbox.x-myPlayer.hitbox.width/2;
-        myPlayer.yCoord=myPlayer.initialYCoord=y+16-myPlayer.hitbox.y-myPlayer.hitbox.height/2;
+        myPlayer.xCoord=x+16-myPlayer.hitbox.x-myPlayer.hitbox.width/2;
+        myPlayer.yCoord=y+16-myPlayer.hitbox.y-myPlayer.hitbox.height/2;
     }
     Vector2 const getImageSize()
     {
         return {32,64};
+    }
+    bool collision(Rectangle entity)
+    {
+        return Object::collision(x,y,entity);
     }
     void draw(int transparency=255)
     {
@@ -264,6 +130,14 @@ class Start : public Object
     }
 
 }myStart;
+void Player::reset()
+{
+    myStart.specialEffect();
+    xVelocity=yVelocity=0;
+    xFacing=1;
+    isGrounded=false;
+    XDirection=0;
+}
 class Finish : public Object
 {
     public:
@@ -276,10 +150,172 @@ class Finish : public Object
     {
         Object::draw(x,y,transparency);
     }
-    void collisionEffect(int x,int y)
+    bool collision(Rectangle entity)
+    {
+        return Object::collision(x,y,entity);
+    }
+    void collisionEffect()
     {
         won=true;
     }
 }myFinish;
+
+class MapObj
+{
+public:
+    std::map <std::pair<int,int>,int> currentMap;
+    void saveMap(std::string fileName)
+    {
+        /// TO DO: make file maybe if aint existin'
+        remove(fileName.c_str());
+        std::ofstream fout(fileName);
+        fout<<"start "<<myStart.x<<' '<<myStart.y<<'\n';
+        fout<<"finish "<<myFinish.x<<' '<<myFinish.y<<'\n';
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            fout<<(it->first).first<<' '<<(it->first).second<<' '<<AllObjects[it->second]->UID<<'\n';
+        fout.close();
+    }
+    void loadMap(std::string fileName)
+    {
+        currentMap.clear();
+        std::ifstream fin(fileName);
+        if(!fin)
+        {std::cout<<"Error";return;}
+
+        char c[10];
+        fin>>c;
+        if(strcmp(c,"start"))
+        {
+            std::cout<<"\n\nError, no start provided\n\n";
+            strcpy(doing,"Exiting");return;
+        }
+        fin>>myStart.x>>myStart.y;
+        fin>>c;
+        if(strcmp(c,"finish"))
+        {
+            std::cout<<"\n\nError, no finish provided\n\n";
+            strcpy(doing,"Exiting");return;
+        }
+        fin>>myFinish.x>>myFinish.y;
+
+        myStart.specialEffect(); /// in this case sets player position
+
+        std::pair<int,int> coord;
+        int UID;
+        while(fin>>coord.first)
+        {
+            fin>>coord.second>>UID;
+            if(UID==myStart.UID || UID==myFinish.UID)
+            {
+                std::cout<<"\n\nError, multiple starts or finishes provided.\n\n";
+                strcpy(doing,"Exiting");return;
+            }
+            currentMap[coord]=UID_pairing[UID];
+        }
+        fin.close();
+    }
+    void drawMap(int transparency)
+    {
+        myStart.draw(transparency);
+        myFinish.draw(transparency);
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
+    }
+    void checkAllCollisions()
+    {
+        if(myFinish.collision(myPlayer.getHitbox()))myFinish.collisionEffect();
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , myPlayer.getHitbox()))
+                AllObjects[it->second]->collisionEffect((it->first).first , (it->first).second);
+        myPlayer.newMovement();
+    }
+    bool checkAllCollisionsE(Rectangle entity)
+    {
+        if(myFinish.collision(entity)) return true;
+        if(myStart.collision(entity))  return true;
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+                return true;
+        return false;
+    }
+    std::pair<int,int> getCollision(Rectangle entity)
+    {
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+                return {(it->first).first , (it->first).second};
+    }
+    void deletePair(std::pair<int,int> coord)
+    {
+        currentMap.erase(currentMap.find(coord));
+    }
+    void deleteClick(Vector2 pos)
+    {
+        Rectangle entity={pos.x,pos.y,1,1};
+        for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+            {
+                currentMap.erase(it);
+                return;
+            }
+    }
+} myMap;
+void Object::movePlayer(char const c[10],int x,int y)
+{
+    Directions playerDir=myPlayer.getOldDir();
+    Directions objDir=getDir(x,y);
+    float moveUp    = objDir.up - myPlayer.hitbox.y - myPlayer.hitbox.height;
+    float moveDown  = objDir.down - myPlayer.hitbox.y;
+    float moveLeft  = objDir.left - myPlayer.hitbox.x - myPlayer.hitbox.width;
+    float moveRight = objDir.right - myPlayer.hitbox.x;
+    if(!strcmp(c,"up"))
+    {
+
+        myPlayer.yCoord=moveUp;
+        myPlayer.yVelocity=0;
+        myPlayer.isGrounded=true;
+    }
+
+    if(!strcmp(c,"left"))
+    {
+        if(objDir.up-playerDir.down>-10
+           && !myMap.checkAllCollisionsE({myPlayer.xCoord,moveUp,myPlayer.getHitbox().width,myPlayer.getHitbox().height}))
+        {
+            return movePlayer("up",x,y);
+        }
+
+        myPlayer.xCoord=moveLeft;
+        myPlayer.xVelocity=0;
+
+    }
+
+    if(!strcmp(c,"down"))
+    {
+        if(myPlayer.yVelocity<0.3 && (objDir.left-playerDir.right>=-1 || playerDir.left-objDir.right>=-1))
+        {
+            if(objDir.left-playerDir.right>=-1)
+                myPlayer.xCoord=moveLeft;
+            else
+                myPlayer.xCoord=moveRight;
+        }
+        else
+        {
+            myPlayer.yCoord=moveDown;
+            myPlayer.yVelocity=0;
+        }
+    }
+
+    if(!strcmp(c,"right"))
+    {
+        if(objDir.up-playerDir.down>-10
+        && !myMap.checkAllCollisionsE({myPlayer.xCoord,moveUp,myPlayer.getHitbox().width,myPlayer.getHitbox().height}))
+        {
+            return movePlayer("up",x,y);
+        }
+        myPlayer.xCoord=moveRight;
+        myPlayer.xVelocity=0;
+    }
+
+}
+
 
 #endif // OBJECTS

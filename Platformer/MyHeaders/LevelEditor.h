@@ -67,7 +67,9 @@ class LevelEditor
     int MAX_PAGES;
     FixedButton  *buttons;
     int currentPage=0;
-    int currentObject=1; bool isObjectShown=false;
+    int currentObject=1;
+    int startX,startY;
+    bool isObjectShown=false;
     Exit exit;
     KBD_Move kbdMove;
 
@@ -116,33 +118,8 @@ public:
             isObjectShown=false;
         else
             isObjectShown=true;
-        if(isObjectShown)
-        {
-            if(IsMouseButtonDown(0) && canPlace())
-            {
-                Object *obj= (AllObjects[currentObject]);
-                int x=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
-                int y=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
 
-                if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
-                {
-                    if(obj->UID == myStart.UID)
-                        myStart.x=x,myStart.y=y;
-                    else
-                        myFinish.x=x,myFinish.y=y;
-                }
-                else
-                {
-                    std::pair<int,int> mousepos={x,y};
-                    myMap.currentMap[mousepos]=currentObject;
-                }
-
-            }
-
-            if( (IsKeyDown(KEY_DELETE) || (IsKeyDown(KEY_LEFT_SHIFT) && IsMouseButtonDown(1)))
-            && myMap.checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),1,1}) )
-                myMap.deleteClick(GetMousePosition());
-        }
+        PlaceBlocks();
 
         draw();
 
@@ -153,12 +130,78 @@ public:
         }
 
     }
-    bool canPlace()
+    void PlaceBlocks()
+    {
+        if(!isObjectShown)
+            return;
+        Object *obj= (AllObjects[currentObject]);
+        int mouseX=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
+        int mouseY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
+        if(IsMouseButtonPressed(0))
+        {
+            if(!myMap.checkAllCollisionsE({GetMouseX(),GetMouseY()}))
+            {
+                startX=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
+                startY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
+            }
+            else
+            { /// TO DO REPAIR
+                std::pair<int,int> start=myMap.getCollision(obj->getHitbox(mouseX,mouseY));
+                startX=start.first;startY=start.second;
+                myMap.deletePair(start);
+            }
+        }
+        if(IsMouseButtonReleased(0))
+        {
+            if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
+            {
+                if(!myMap.checkAllCollisionsE(obj->getHitbox(mouseX,mouseY)))
+                {
+                    if(obj->UID == myStart.UID)
+                        myStart.x=mouseX,myStart.y=mouseY;
+                    else
+                        myFinish.x=mouseX,myFinish.y=mouseY;
+                }
+            }
+            else
+                placeAll();
+        }
+
+        if( (IsKeyDown(KEY_DELETE) || (IsKeyDown(KEY_LEFT_SHIFT) && IsMouseButtonDown(1)))
+                && myMap.checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),1,1}) )
+            myMap.deleteClick(GetMousePosition());
+    }
+    Rectangle getBigRectangle()
     {
         Object *obj= (AllObjects[currentObject]);
-        int x=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
-        int y=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
-        return !myMap.checkAllCollisionsE(obj->getHitbox(x,y));
+        int mouseX=GetMouseX();
+        int mouseY=GetMouseY();
+
+        int nrHorObjs= Misc::abs(mouseX-startX)/obj->hitbox.width + 1;
+        int nrVerObjs= Misc::abs(mouseY-startY)/obj->hitbox.height + 1;
+
+        int X = (startX<mouseX) ? startX : (startX - obj->hitbox.width*nrHorObjs);
+        int Y = (startY<mouseY) ? startY : (startY - obj->hitbox.height*nrVerObjs);
+
+        if(mouseX<startX)nrHorObjs++;
+        if(mouseY<startY)nrVerObjs++;
+        return {X,Y,nrHorObjs*obj->hitbox.width,nrVerObjs*obj->hitbox.height};
+    }
+    void placeAll()
+    {
+        Rectangle rect=getBigRectangle();
+        ///std::cout<<rect.x<<' '<<rect.y<<' '<<rect.width<<' '<<rect.height<<'\n';
+        if(myMap.checkAllCollisionsE(rect))
+            return;
+        int width=AllObjects[currentObject]->hitbox.width;
+        int height=AllObjects[currentObject]->hitbox.height;
+        for(int i=0;width*i<rect.width;i++)
+            for(int j=0;height*j<rect.height;j++)
+            {
+                std::pair<int,int> iPos={rect.x+i*width,rect.y+j*height};
+                myMap.currentMap[iPos]=currentObject;
+            }
+
     }
     void exitscreen()
     {
@@ -183,21 +226,42 @@ public:
         BeginDrawing();
         Color T_BLUE=BLUE;   T_BLUE.a=transparency;
         ClearBackground(T_BLUE);
-        if(currentObject!=-1 && isObjectShown)
-        {
-            Object *obj= (AllObjects[currentObject]);
-            obj->draw(GetMouseX()-obj->hitbox.x-obj->hitbox.width/2,
-                     GetMouseY()-obj->hitbox.y-obj->hitbox.height/2,
-                     transparency);
-        }
-        myMap.drawMap(transparency);
-        GUI(transparency);
+
+        drawLevel(transparency);
+        drawSelector(transparency);
 
         if(transparency!=255)
             exit.run();
         EndDrawing();
     }
-    void GUI(int transparency)
+    void drawLevel(int transparency)
+    {
+        drawHeldObj(transparency);
+        myMap.drawMap(transparency);
+    }
+    void drawHeldObj(int transparency)
+    {
+        if(currentObject!=-1 && isObjectShown)
+        {
+            if(IsMouseButtonDown(0))
+            {
+                Rectangle rect=getBigRectangle();
+                DrawLine(rect.x,rect.y,rect.x+rect.width,rect.y,BLACK);
+                DrawLine(rect.x,rect.y,rect.x,rect.y+rect.height,BLACK);
+                DrawLine(rect.x+rect.width,rect.y,rect.x+rect.width,rect.y+rect.height,BLACK);
+                DrawLine(rect.x,rect.y+rect.height,rect.x+rect.width,rect.y+rect.height,BLACK);
+            }
+            else
+            {
+                Object *obj= (AllObjects[currentObject]);
+                obj->draw(GetMouseX()-obj->hitbox.x-obj->hitbox.width/2,
+                     GetMouseY()-obj->hitbox.y-obj->hitbox.height/2,
+                     transparency);
+            }
+
+        }
+    }
+    void drawSelector(int transparency)
     {
         DrawRectangle(0,screenHeight-114,screenWidth,114,{237, 237, 157,(unsigned char)transparency});
         Color T_BLACK=BLACK; T_BLACK.a=transparency;
