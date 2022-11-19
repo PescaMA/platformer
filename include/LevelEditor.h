@@ -1,4 +1,8 @@
+#pragma once
+
 #include "ExtendedRaylib.h"
+#include "Objects.h"
+#include "Settings.h"
 extern char doing[21];
 extern const int screenWidth;
 extern const int screenHeight;
@@ -139,7 +143,7 @@ public:
         int mouseY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
         if(IsMouseButtonPressed(0))
         {
-            if(!myMap.checkAllCollisionsE({GetMouseX(),GetMouseY()}))
+            if(!myMap.checkAllCollisionsE({static_cast<float>(GetMouseX()),static_cast<float>(GetMouseY())}))
             {
                 startX=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
                 startY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
@@ -185,7 +189,7 @@ public:
 
         if(mouseX<startX)nrHorObjs++;
         if(mouseY<startY)nrVerObjs++;
-        return {X,Y,nrHorObjs*obj->hitbox.width,nrVerObjs*obj->hitbox.height};
+        return {static_cast<float>(X),static_cast<float>(Y),nrHorObjs*obj->hitbox.width,nrVerObjs*obj->hitbox.height};
     }
     void placeAll()
     {

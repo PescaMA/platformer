@@ -1,10 +1,9 @@
-#ifndef EXTENDED_RAYLIB ///contains the whole header
-#define EXTENDED_RAYLIB
+#pragma once
 
-#ifndef RAYLIB_H
 #include "raylib.h"
-#endif // RAYLIB.H
 #include <chrono>
+#include <cstring>
+#include <algorithm>
 
 int mouseAction;
 
@@ -130,14 +129,14 @@ struct Button
     float thickness;
     bool isHovering;
     bool forceHover;
-    Button(){}
-    Button(char const text[],int startX,int startY,int fontSize,Color color,Color hoverColor)
+    Button() = default;
+    Button(char const text[],float startX,float startY, float fontSize, Color color, Color hoverColor)
     {
         isHovering=false;
         strcpy(this->text,text);
-        thickness=std::max(1,fontSize/10);
+        thickness=std::max(1.0f,fontSize/10);
         this->fontSize=fontSize;
-        rect= {(float)startX,(float)startY,(float)MeasureText(text,fontSize)+10+thickness*2,fontSize+10+thickness*2};
+        rect= {startX, startY,(float)MeasureText(text,(int)fontSize)+10+thickness*2, fontSize+10+thickness*2};
         forceHover=false;
         normalColor.text=color;
         (this->hoverColor).text=hoverColor;
@@ -198,7 +197,7 @@ struct Button
 };
 struct ButtonAligned : public Button
 {
-    ButtonAligned(){}
+    ButtonAligned() = default;
     ButtonAligned(char const text[105],int startX,int width,char const Xalign[],int startY,int height,char const Yalign[],int fontSize,Color color,Color hoverColor)
     :Button(text,startX,startY,fontSize,color,hoverColor)
     {
@@ -215,7 +214,7 @@ struct ButtonAligned : public Button
 };
 struct ButtonTxt : public Button
 {
-    ButtonTxt(){}
+    ButtonTxt() = delete;
     ButtonTxt(char const text[],Txt a,Color color,Color hoverColor)
     :Button(text,(a.x)+MeasureText(a.text,a.Fsz)+10,(a.y)-3,a.Fsz,color,hoverColor)
     {}/// Button to the right of a Txt
@@ -223,7 +222,7 @@ struct ButtonTxt : public Button
 struct ButtonOnOff : public Button
 {
     bool isOn;
-    ButtonOnOff(){}
+    ButtonOnOff() = default;
     ButtonOnOff(int startX,int startY,int fontSize,bool isOn,Color colorOn=GREEN,Color colorOff=RED)
     :Button("",startX,startY,fontSize,colorOn,colorOff)
     {
@@ -272,7 +271,7 @@ struct ButtonOnOff : public Button
 };
 struct ButtonInput : public Button
 {
-    ButtonInput(){}
+    ButtonInput() = default;
     ButtonInput(char const text[],int startX,int startY,int fontSize,Color color,Color hoverColor)
     :Button(text,startX,startY,fontSize,color,hoverColor){}
     bool getinputI(int &rez,int max_value,char const ending[])
@@ -307,7 +306,7 @@ struct ButtonInput : public Button
 struct FixedButton : public Button
 {
 
-    FixedButton(){}
+    FixedButton() = default;
     FixedButton(char const text[],int startX,int startY,int width,int height,int fontSizeee,Color color,Color hoverColor)
     :Button(text,1,1,fontSizeee,color,hoverColor)
     {
@@ -444,4 +443,3 @@ class GameTickRate
         return result;
     }
 };
-#endif // EXTENDED_RAYLIB

@@ -1,0 +1,6 @@
+[requires]
+glfw/3.3.8
+raylib/4.0.0
+
+[generators]
+cmake_find_package

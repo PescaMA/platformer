@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ExtendedRaylib.h"
 
 bool hideHitbox=false;
@@ -108,4 +110,4 @@ public:
             DrawRectangleLinesEx(getHitbox(),1,GREEN);
     }
 
-}myPlayer;
+} myPlayer;

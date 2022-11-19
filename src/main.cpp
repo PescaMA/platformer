@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string.h>
-#include "MyHeaders/Loader.h"
-#include "MyHeaders/Settings.h"
-#include "MyHeaders/Game.h"
-#include "MyHeaders/LevelEditor.h"
+#include "Loader.h"
+#include "Settings.h"
+#include "Game.h"
+#include "LevelEditor.h"
 
 char doing[21]="MainMenu";
 extern MapObj myMap;
@@ -15,8 +15,7 @@ extern MapObj myMap;
 *
 *
 ***********************************/
-void Loader::mainloop()
-{
+void Loader::mainloop() {
     LevelEditor lvlEditor;
     MainMenu mainMenu;
     LevelSelect lvlSelect;
@@ -25,7 +24,8 @@ void Loader::mainloop()
     {
         mouseAction=MOUSE_CURSOR_ARROW;
 
-        if( !strcmp(doing,"Game")) game.run();
+        // Might i suggest doing a switch?
+        if( !strcmp(doing,"Game")) game.GameLoop();
         if( !strcmp(doing,"MainMenu")) mainMenu.run();
         if( !strcmp(doing,"LevelEditor")) lvlEditor.run();
         if( !strcmp(doing,"LevelSelect")) lvlSelect.run();
@@ -35,6 +35,7 @@ void Loader::mainloop()
             SetMouseCursor(mouseAction); /// exiting holdClicking from a button
     }
 }
+
 void Loader::loadMap(const char levelName[])
 {
     myMap.loadMap(levelName);

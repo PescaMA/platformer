@@ -1,6 +1,10 @@
+#pragma once
+
 #include "ExtendedRaylib.h"
 #include "Objects.h"
+#include <iostream>
 #include <map>
+
 extern char doing[21];
 
 const int screenWidth=1000;

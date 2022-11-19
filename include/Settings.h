@@ -1,12 +1,18 @@
+#pragma once
+
 #include "ExtendedRaylib.h"
+#include "Loader.h"
+
 extern char doing[21];
 
 class Exit
 {
-    const float  X=screenWidth/8, Y=screenHeight/3.0f;
-    const float WIDTH=screenWidth*6/8.0f,HEIGHT=screenHeight/3.0f;
-    Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
-    Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
+    const float X = screenWidth / 8.0f;
+    const float Y=screenHeight / 3.0f;
+    const float WIDTH=screenWidth * 6 / 8.0f;
+    const float HEIGHT=screenHeight / 3.0f;
+    Button yes=Button("Yes",X+40.0f,Y+HEIGHT-50.0f,30,BLACK,RED);;
+    Button no=Button("No",X+WIDTH-50.f-(float)MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
 public:
     KBD_Move kbdMove;
     Exit()
@@ -17,8 +23,8 @@ public:
     void run()
     {const char sure[]="Are you sure you want to quit?";
 
-        DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
-        DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
+        DrawRectangle((int)X,(int)Y,(int)WIDTH,(int)HEIGHT,GRAY);
+        DrawText(sure,int(X+WIDTH)/2-MeasureText(sure,29)/2,(int)(Y+20),29,BLACK);
         yes.draw();
         no.draw();
     }
@@ -89,6 +95,6 @@ class Settings
 public:
     void static run()
     {
-
+        // Why is this empty?
     }
 };

@@ -1,11 +1,13 @@
-#ifndef OBJECTS
-#define OBJECTS
+#pragma once
+
 #include "ExtendedRaylib.h"
 #include "Player.h"
 #include <map>
 #include <utility> /// for pair
 #include <fstream> /// for accessing stored levels
 #include <stdio.h> /// for replacing (meaning deleting) current level
+#include <iostream>
+
 extern Texture2D ASSET_BLOCKS;
 extern char doing[21];
 extern std::map<int,int> UID_pairing;
@@ -317,5 +319,3 @@ void Object::movePlayer(char const c[10],int x,int y)
 
 }
 
-
-#endif // OBJECTS
