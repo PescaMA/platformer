@@ -8,33 +8,34 @@ class Player
     /// can flip images
 public:
     float xCoord,xVelocity=0,xMovement;
-    const float MAX_X_VELOCITY_PER_FRAME=0.8;
-    const float X_SECONDS_UNTIL_MAX=1;
-    float const XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/200; /// 0.0004 now
+    const float MAX_X_VELOCITY_PER_SECOND=220;
+    const float MAX_X_VELOCITY_PER_FRAME=MAX_X_VELOCITY_PER_SECOND/200;
+    const float X_SECONDS_UNTIL_MAX=0.5;
+    float const XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/200;
     float xFacing=1;
     int XDirection=0;
 
     float yCoord,yVelocity=0,yMovement;
-    const float MAX_Y_VELOCITY_PER_FRAME=3;
-    const float Y_SECONDS_UNTIL_MAX=2;
-    float const YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
+
+    const float MAX_Y_VELOCITY_PER_SECOND=300;
+    const float MAX_Y_VELOCITY_PER_FRAME=MAX_Y_VELOCITY_PER_SECOND/200;
+    const float Y_SECONDS_UNTIL_MAX=0.2;
+    const float YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
+    const float JUMP_VELOCITY=2.2;
     bool isGrounded=false;
 
     int dashes=1;
     bool isdashing=false;
     long long dashTime=0;
-    const float dashXVal=1.50;
-    const float dashYVal=1.50;
-    const float dashXDiagVal=1.20;
-    const float dashYDiagVal=1.20;
+    const float dashXVal=2;
+    const float dashYVal=1.9;
+    const float dashXDiagVal=1.50;
+    const float dashYDiagVal=1.50;
     const long long MAX_DASH_TIME=200; /// 0.1 sec (in milisec)
 
     Rectangle const hitbox={15,16,35,46};
 
-    Rectangle getHitbox()
-    {
-        return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
-    }
+
     Directions getOldDir()
     {
         Directions rez;
@@ -47,6 +48,10 @@ public:
     Rectangle getPrevHitbox()
     {
         return {xCoord+hitbox.x-xMovement,yCoord+hitbox.y-yMovement,hitbox.width,hitbox.height};
+    }
+    Rectangle getHitbox()
+    {
+        return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
     }
     void move()
     {
@@ -61,9 +66,14 @@ public:
 
         addMovement();
     }
+    void presume()
+    {
+        isGrounded=false;
+    }
     void checkDash()
     {
-        if(isdashing && getTimeMS()-dashTime>MAX_DASH_TIME)
+        if(!isdashing)return;
+        if(getTimeMS()-dashTime>MAX_DASH_TIME)
         {
             isdashing=false;
             xVelocity/=2;
@@ -79,7 +89,7 @@ public:
             dashes=1;
             if(IsKeyDown(KEY_SPACE))
             {
-                yVelocity=-YVelocityGain*175; /// 0.7
+                yVelocity=-JUMP_VELOCITY;
                 isGrounded=false;
             }
         }
@@ -120,7 +130,7 @@ public:
     void calcMoveOy()
     {
         yVelocity+=YVelocityGain;
-
+        ///std::cout<<yVelocity<<'\n';
         if(yVelocity>MAX_Y_VELOCITY_PER_FRAME)
             yVelocity=MAX_Y_VELOCITY_PER_FRAME;
     }

@@ -27,7 +27,7 @@ public:
             myPlayer.move();
             if(i%5==0)
             {
-                myPlayer.isGrounded=false;
+                myPlayer.presume();
                 myMap.checkAllCollisions();
             }
 

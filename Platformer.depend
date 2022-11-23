@@ -43,12 +43,12 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1669146417 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1669233624 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	"ExtendedRaylib.h"
 	"Objects.h"
 	<map>
 
-1669146949 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1669233371 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
 	"Objects.h"
 	"ExtendedRaylib.h"
 
@@ -65,7 +65,7 @@
 	"raylib.h"
 	<chrono>
 
-1669147448 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+1669234104 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
 	"ExtendedRaylib.h"
 	"Player.h"
 	<map>
@@ -73,7 +73,7 @@
 	<fstream>
 	<stdio.h>
 
-1668979669 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1669234098 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
 	"ExtendedRaylib.h"
 
 1668530977 d:\code blocks\probleme interesante\raylib\platformer\myheaders\mapobj.h

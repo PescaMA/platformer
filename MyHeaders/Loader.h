@@ -21,7 +21,7 @@ public:
     static void load()
     {
         InitWindow(screenWidth,screenHeight,"Platformer");
-        fps=30;
+        fps=300;
         SetTargetFPS(fps);
         SetExitKey(0);
         ASSET_CHARACTER=LoadTexture("Images/character.png");

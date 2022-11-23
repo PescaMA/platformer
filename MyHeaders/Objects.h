@@ -276,7 +276,7 @@ void Object::movePlayer(char const c[10],int x,int y)
     float moveUp    = objDir.up - myPlayer.hitbox.y - myPlayer.hitbox.height;
     float moveDown  = objDir.down - myPlayer.hitbox.y;
     float moveLeft  = objDir.left - myPlayer.hitbox.x - myPlayer.hitbox.width;
-    float moveRight = objDir.right - myPlayer.hitbox.x +1e-4; /// error correction :)
+    float moveRight = objDir.right - myPlayer.hitbox.x +1e-4; /// error correction
     if(!strcmp(c,"up"))
     {
 
