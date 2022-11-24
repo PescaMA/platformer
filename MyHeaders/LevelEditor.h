@@ -138,6 +138,7 @@ public:
         Object *obj= (AllObjects[currentObject]);
         int mouseX=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
         int mouseY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
+
         if(IsMouseButtonPressed(0))
         {
             areaColor=BLACK;
@@ -149,9 +150,16 @@ public:
             else
             {
                 std::pair<int,int> start=myMap.getCollisionMouse();
-                startX=start.first;startY=start.second;
-                myMap.deletePair(start);
+                if(start.first>-9999)
+                {
+                    startX=start.first;startY=start.second;
+                    myMap.deletePair(start);
+                }
+                else
+                    areaColor=WHITE;
             }
+            if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
+                    areaColor=WHITE;
         }
         if(IsMouseButtonDown(0) && !Misc::same_color(areaColor,WHITE))
         {
@@ -160,15 +168,15 @@ public:
             else
                 areaColor=GREEN;
         }
-        if(IsMouseButtonReleased(0) && !Misc::same_color(areaColor,WHITE))
+        if(IsMouseButtonReleased(0))
         {
-            if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
+            if(obj->UID == myStart.UID || obj->UID == myFinish.UID || Misc::same_color(areaColor,WHITE))
             {
                 if(!myMap.checkAllCollisionsE(obj->getHitbox(mouseX,mouseY)))
                 {
                     if(obj->UID == myStart.UID)
                         myStart.x=mouseX,myStart.y=mouseY;
-                    else
+                    if(obj->UID == myFinish.UID)
                         myFinish.x=mouseX,myFinish.y=mouseY;
                 }
             }
