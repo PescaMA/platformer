@@ -24,6 +24,7 @@ class Object
     #define LpRb (1.0f*(myPlayer.getPrevHitbox().x)  -  (x+hitbox.x+hitbox.width))
 */
     public:
+    bool canWJ=false;
     Texture2D image;
     int imageX;
     int UID;
@@ -84,7 +85,7 @@ class Block : public Object
 {
     public:
     Block(){}
-    Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){}
+    Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){canWJ=true;}
     void collisionEffect(int x,int y)
     {
         Directions playerDir=myPlayer.getOldDir();
@@ -135,9 +136,9 @@ void Player::reset()
     myStart.specialEffect();
     xVelocity=yVelocity=0;
     xFacing=1;
-    isGrounded=false;
     XDirection=0;
     isdashing=false;
+    presume();
 }
 class Finish : public Object
 {
@@ -226,13 +227,16 @@ public:
     {
         if(myFinish.collision(myPlayer.getHitbox()))myFinish.collisionEffect();
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , myPlayer.getHitbox()))
-                AllObjects[it->second]->collisionEffect((it->first).first , (it->first).second);
+        {
+            Object *obj=AllObjects[it->second];
+            if(obj->collision((it->first).first , (it->first).second , myPlayer.getHitbox()))
+                obj->collisionEffect((it->first).first , (it->first).second);
+            if(obj->canWJ)
+                myPlayer.tryWallJump(obj->getDir(it->first.first,it->first.second));
+
+        }
+
         myPlayer.newMovement();
-    }
-    bool checkAllCollisionsMouse()
-    {
-        return checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0});
     }
     bool checkAllCollisionsE(Rectangle entity)
     {
@@ -242,6 +246,10 @@ public:
             if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
                 return true;
         return false;
+    }
+    bool checkAllCollisionsMouse()
+    {
+        return checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0});
     }
     std::pair<int,int> getCollisionE(Rectangle entity)
     {
@@ -322,9 +330,6 @@ void Object::movePlayer(char const c[10],int x,int y)
             myPlayer.yVelocity=0;
         }
     }
-
-
-
 }
 
 

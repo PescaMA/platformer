@@ -33,26 +33,14 @@ public:
     const float dashYDiagVal=1.50;
     const long long MAX_DASH_TIME=200; /// 0.1 sec (in milisec)
 
+    const float WJ_MAX_DISTANCE=20;
+    const float WALL_CLING_MAX_DISTANCE=10;
+    float closeLeft=999,closeRight=999;
+    int WJ_direction=0;
+    bool isClinging=false;
+
     Rectangle const hitbox={15,16,35,46};
 
-
-    Directions getOldDir()
-    {
-        Directions rez;
-        rez.left=xCoord+hitbox.x-xMovement;
-        rez.right=xCoord+hitbox.x-xMovement+hitbox.width;
-        rez.up=yCoord+hitbox.y-yMovement;
-        rez.down=yCoord+hitbox.y-yMovement+hitbox.height;
-        return rez;
-    }
-    Rectangle getPrevHitbox()
-    {
-        return {xCoord+hitbox.x-xMovement,yCoord+hitbox.y-yMovement,hitbox.width,hitbox.height};
-    }
-    Rectangle getHitbox()
-    {
-        return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
-    }
     void move()
     {
         checkDash();
@@ -66,10 +54,7 @@ public:
 
         addMovement();
     }
-    void presume()
-    {
-        isGrounded=false;
-    }
+
     void checkDash()
     {
         if(!isdashing)return;
@@ -85,13 +70,62 @@ public:
     {
         if(isdashing)return;
         if(isGrounded)
-        {
             dashes=1;
-            if(IsKeyDown(KEY_SPACE))
+        if(IsKeyDown(KEY_SPACE))
+        {
+
+            if(WJ_direction && !isGrounded && IsKeyPressed(KEY_SPACE))
+            {
+                yVelocity=-JUMP_VELOCITY*0.8;
+                if(IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT))
+                    xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME;
+                else
+                    xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME*0.9;
+            }
+            if(isGrounded)
             {
                 yVelocity=-JUMP_VELOCITY;
                 isGrounded=false;
             }
+
+        }
+        if(IsKeyDown(KEY_X) && WJ_direction)
+        {
+            if(closeLeft<closeRight)
+            {
+                if(closeLeft<10)
+                {
+                    isClinging=true;
+                    xVelocity=0;
+                    yVelocity=0;
+                    xMovement-=closeLeft;
+                    xCoord-=closeLeft;
+                }
+                else
+                    isClinging=false;
+            }
+            else
+            {
+                if(closeRight<10)
+                {
+                    isClinging=true;
+                    xVelocity=0;
+                    yVelocity=0;
+                    xMovement+=closeRight;
+                    xCoord+=closeRight;
+                }
+                else
+                    isClinging=false;
+            }
+        }
+        else
+            isClinging=false;
+        if(isClinging)
+        {
+            if(IsKeyDown(KEY_DOWN))
+                yVelocity=MAX_Y_VELOCITY_PER_FRAME*0.6;
+            if(IsKeyDown(KEY_UP))
+                yVelocity=-MAX_Y_VELOCITY_PER_FRAME*0.4;
         }
         if(IsKeyDown(KEY_Z) && dashes>0)
         {
@@ -129,6 +163,7 @@ public:
     }
     void calcMoveOy()
     {
+        if(isClinging)return;
         yVelocity+=YVelocityGain;
         ///std::cout<<yVelocity<<'\n';
         if(yVelocity>MAX_Y_VELOCITY_PER_FRAME)
@@ -136,6 +171,7 @@ public:
     }
     void calcMoveOx()
     {  /// TO DO : stuff so it aint terrible
+        if(isClinging)return;
         float oldXVelocity=xVelocity;
         xVelocity+=XVelocityGain*XDirection;
         if(!XDirection)
@@ -170,6 +206,56 @@ public:
         yCoord+=yVelocity;
     }
     void reset();
+    void presume()
+    {
+        isGrounded=false;
+        WJ_direction=0;
+        closeLeft=closeRight=999;
+    }
+    void tryWallJump(Directions box)
+    {
+        Directions PDir=getNewDir();
+        if(PDir.down-3<=box.up || box.down<=PDir.up-5)
+            return;
+        if(box.left-PDir.right<=WJ_MAX_DISTANCE && box.left-PDir.right>=-3)
+        {
+            WJ_direction=-1;
+            closeRight=std::min(closeRight,std::max(box.left-PDir.right,0.0f));
+        }
+
+        if(PDir.left-box.right<=WJ_MAX_DISTANCE && PDir.left-box.right>=-3)
+        {
+            WJ_direction=1;
+            closeLeft=std::min(closeLeft,std::max(PDir.left-box.right,0.0f));
+        }
+
+    }
+    Directions getOldDir()
+    {
+        Directions rez;
+        rez.left=xCoord+hitbox.x-xMovement;
+        rez.right=xCoord+hitbox.x-xMovement+hitbox.width;
+        rez.up=yCoord+hitbox.y-yMovement;
+        rez.down=yCoord+hitbox.y-yMovement+hitbox.height;
+        return rez;
+    }
+    Directions getNewDir()
+    {
+        Directions rez;
+        rez.left=xCoord+hitbox.x;
+        rez.right=xCoord+hitbox.x+hitbox.width;
+        rez.up=yCoord+hitbox.y;
+        rez.down=yCoord+hitbox.y+hitbox.height;
+        return rez;
+    }
+    Rectangle getPrevHitbox()
+    {
+        return {xCoord+hitbox.x-xMovement,yCoord+hitbox.y-yMovement,hitbox.width,hitbox.height};
+    }
+    Rectangle getHitbox()
+    {
+        return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
+    }
     void draw(int transparency)
     {
         Color white=WHITE;

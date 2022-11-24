@@ -23,7 +23,7 @@ class KBD_Move;
 class GameTickRate;
 struct Directions
 {
-    int left,up,right,down;
+    float left,up,right,down;
 };
 class Misc
 {
