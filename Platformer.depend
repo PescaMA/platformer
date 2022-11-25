@@ -73,8 +73,9 @@
 	<fstream>
 	<stdio.h>
 
-1669317401 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1669412801 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
 	"ExtendedRaylib.h"
+	<cmath>
 
 1668530977 d:\code blocks\probleme interesante\raylib\platformer\myheaders\mapobj.h
 	<map>

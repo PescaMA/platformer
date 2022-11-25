@@ -1,5 +1,6 @@
 #include "ExtendedRaylib.h"
 
+#include <cmath>
 bool hideHitbox=false;
 extern Texture2D ASSET_CHARACTER;
 class Player
@@ -21,7 +22,13 @@ public:
     const float MAX_Y_VELOCITY_PER_FRAME=MAX_Y_VELOCITY_PER_SECOND/200;
     const float Y_SECONDS_UNTIL_MAX=0.2;
     const float YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
-    const float JUMP_VELOCITY=2.2;
+    const float JUMP_HEIGHT=90;
+    /*Fizica: (https://fenomas.com/2016/07/game-jumping-physics/)
+    PE = mgh            // Potential energy at peak of jump
+    KE = mv²/2          // Kinetic energy at initial jump velocity v
+    mgh = mv²/2         // set them equal and solve for v
+    v² = 2gh => v=sqrt(2gh)*/
+    const float JUMP_VELOCITY=pow(JUMP_HEIGHT*YVelocityGain*2,0.5f);
     bool isGrounded=false;
 
     int dashes=1;
