@@ -88,7 +88,7 @@ class Block : public Object
     Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){canWJ=true;}
     void collisionEffect(int x,int y)
     {
-        Directions playerDir=myPlayer.getOldDir();
+        Directions playerDir=myPlayer.getPrevDir();
         Directions objDir=getDir(x,y);
         int up   =  objDir.up - playerDir.down;
         int down =  playerDir.up - objDir.down;
@@ -279,7 +279,7 @@ public:
 } myMap;
 void Object::movePlayer(char const c[10],int x,int y)
 {
-    Directions playerDir=myPlayer.getOldDir();
+    Directions playerDir=myPlayer.getPrevDir();
     Directions objDir=getDir(x,y);
     float moveUp    = objDir.up - myPlayer.hitbox.y - myPlayer.hitbox.height;
     float moveDown  = objDir.down - myPlayer.hitbox.y;

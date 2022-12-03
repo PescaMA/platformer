@@ -68,6 +68,11 @@ public:
         r.height*=c.zoom;
         return CheckCollisionPointRec(GetMousePosition(),r);
     }
+    static Rectangle smart_paint(float xStart,float size,short xOrientation,float yOrientation)
+    {/// can flip images
+        return {xStart ,0, size*xOrientation, size*yOrientation};
+    }
+
 };
 struct Txt
 {

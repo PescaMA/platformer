@@ -21,7 +21,7 @@ public:
     static void load()
     {
         InitWindow(screenWidth,screenHeight,"Platformer");
-        fps=300;
+        fps=30;
         SetTargetFPS(fps);
         SetExitKey(0);
         ASSET_CHARACTER=LoadTexture("Images/character.png");
@@ -45,6 +45,7 @@ void loadAllObjects()
     myFinish=Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
     Object static *AllObjectss[]=/// taking advantage of easier definition
     {
+        ///(int UID,int page,Texture2D image,int imageX,Rectangle hitbox)
         &(Block1=Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
         &(Block2=Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
         &(Block3=Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),

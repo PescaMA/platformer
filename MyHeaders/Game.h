@@ -6,8 +6,8 @@ class Game
 {
     Exit exit;
     GameTickRate gameTick=GameTickRate(200);
-public:
     bool exiting=false;
+public:
     void commands()
     {
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))

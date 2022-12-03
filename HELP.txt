@@ -1,0 +1,16 @@
+FIRSTLY, go to bin/release, cut and paste the .exe from there to the current folder. Run it to run the game
+
+If you want to play the level you made in level editor, first make sure to save it (shift+S) and then copy the contents from Levels/Lvl_Editor to Levels/Lvl_1.
+
+List of commands:
+shift+s = save lvl editor
+delete or shift+right_click = delete object in lvl editor
+
+shift+h = show/hide hitboxes
+shift+r = reset player
+
+Controls:
+arrow keys = move
+Z = dash
+X= hold to wall
+space=jump
