@@ -62,7 +62,6 @@ protected:
 } objSel;
 class LevelEditor
 {
-    bool exiting=false;
     int *lastOnPage;
     int MAX_PAGES;
     FixedButton  *buttons;
@@ -81,7 +80,6 @@ public:
         objSel.currentPage=&currentPage;
         objSel.lastOnPage=lastOnPage;
         objSel.currentObject=&currentObject;
-        ///we now have 2 pointers for the same 3 addresses
 
         objSel.buildLastOnPage();
         MAX_PAGES=objSel.pagesNr;
@@ -101,8 +99,11 @@ public:
     }
     void  run()
     {
-        if(exiting)
-            return exitscreen();
+        exit.run(this);
+        if(exit.state == Exit::States::starting)
+            isObjectShown=false;
+        if(exit.state != Exit::States::off)
+            return;
         objSel.run();
         kbdMove.run();
 
@@ -123,13 +124,6 @@ public:
         PlaceBlocks();
 
         draw();
-
-        if(IsKeyPressed(KEY_ESCAPE))
-        {
-            exiting=true;
-            isObjectShown=false;
-        }
-
     }
     void PlaceBlocks()
     {
@@ -221,36 +215,19 @@ public:
             }
 
     }
-    void exitscreen()
-    {
-        draw(100);
-        exit.kbdMove.run();
-        if(IsKeyPressed(KEY_ESCAPE) || exit.stay())
-        {
-            kbdMove.reset();
-            exit.kbdMove.reset();
-            exiting=false;
-        }
-        if(exit.leave())
-        {
-            exiting=false;
-            kbdMove.reset();
-            strcpy(doing,"MainMenu");
-        }
-
-    }
-    void  draw(int transparency=255)
+    void  draw()
     {
         BeginDrawing();
+            draw_content(255);
+        EndDrawing();
+    }
+    void draw_content(int transparency)
+    {
         Color T_BLUE=BLUE;   T_BLUE.a=transparency;
         ClearBackground(T_BLUE);
 
         drawLevel(transparency);
         drawSelector(transparency);
-
-        if(transparency!=255)
-            exit.run();
-        EndDrawing();
     }
     void drawLevel(int transparency)
     {

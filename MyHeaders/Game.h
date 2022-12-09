@@ -6,7 +6,6 @@ class Game
 {
     Exit exit;
     GameTickRate gameTick=GameTickRate(200);
-    bool exiting=false;
 public:
     void commands()
     {
@@ -17,8 +16,13 @@ public:
     }
     void run()
     {
-        if(exiting)
-            return exitscreen();
+        if(exit.state == Exit::States::starting)
+            gameTick.pause();
+        exit.run(this);
+
+        if(exit.state != Exit::States::off)
+            return;
+
         commands();
         myPlayer.checkInput();
 
@@ -32,44 +36,24 @@ public:
             }
 
         }
-
         draw();
-
-        if(IsKeyPressed(KEY_ESCAPE))
-        {
-            exiting=true;
-            gameTick.pause();
-        }
     }
     void exitscreen()
     {
-        draw(100);
-        exit.kbdMove.run();
-        if(IsKeyPressed(KEY_ESCAPE) || exit.stay())
-        {
-            exiting=false;
-            exit.kbdMove.reset();
-        }
 
-        if(exit.leave())
-        {
-            myPlayer.reset();
-            exiting=false;
-            strcpy(doing,"MainMenu");
-            exit.kbdMove.reset();
-        }
 
     }
-    void  draw(int transparency=255)
+    void  draw()
+    {
+        BeginDrawing();
+            draw_content(255);
+        EndDrawing();
+    }
+    void draw_content(int transparency)
     {
         Color T_BLUE=BLUE;   T_BLUE.a=transparency;
-
-        BeginDrawing();
         ClearBackground(T_BLUE);
         myMap.drawMap(transparency);
         myPlayer.draw(transparency);
-        if(transparency!=255)
-            exit.run();
-        EndDrawing();
     }
 };

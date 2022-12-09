@@ -7,8 +7,12 @@ class Exit
     const float WIDTH=screenWidth*6/8.0f,HEIGHT=screenHeight/3.0f;
     Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
     Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
+
+
 public:
     KBD_Move kbdMove;
+    enum States {off, starting, going, returning, exiting};
+    States state = off;
     Exit()
     {
         Button *all[2]={&yes,&no};
@@ -22,14 +26,42 @@ public:
         yes.draw();
         no.draw();
     }
+    template <class drawable>
+    void run(drawable background)
+    {
+        if(state == returning || state == exiting)
+            state = off;
+        if(state == starting)
+            state = going;
+        if(state == off && IsKeyPressed(KEY_ESCAPE))
+            state=starting,kbdMove.reset();
+        if(state == off)
+            return;
+        if(state == going && (IsKeyPressed(KEY_ESCAPE) || no.Lclicked()))
+            state=returning;
+
+        if(state == going && yes.Lclicked())
+        {
+            state =exiting;
+            strcpy(doing,"MainMenu");
+        }
+
+
+        kbdMove.run();
+        const char sure[]="Are you sure you want to quit?";
+        BeginDrawing();
+        background->draw_content(100);
+
+
+        DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
+        DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
+        yes.draw();
+        no.draw();
+        EndDrawing();
+    }
     bool leave()
     {
-        if(yes.Lclicked())
-        {
-            kbdMove.reset();
-            return true;
-        }
-        return false;
+        return yes.Lclicked();
     }
     bool stay()  {return  no.Lclicked() ;}
 };

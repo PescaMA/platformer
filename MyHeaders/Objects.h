@@ -131,6 +131,12 @@ class Start : public Object
     }
 
 }myStart;
+
+/***********************************************
+*
+* cross header
+*
+***********************************************/
 void Player::reset()
 {
     myStart.specialEffect();
@@ -140,6 +146,8 @@ void Player::reset()
     isdashing=false;
     presume();
 }
+
+
 class Finish : public Object
 {
     public:
@@ -200,7 +208,7 @@ public:
         }
         fin>>myFinish.x>>myFinish.y;
 
-        myStart.specialEffect(); /// in this case sets player position
+        myPlayer.reset();
 
         std::pair<int,int> coord;
         int UID;
@@ -277,6 +285,8 @@ public:
             }
     }
 } myMap;
+
+
 void Object::movePlayer(char const c[10],int x,int y)
 {
     Directions playerDir=myPlayer.getPrevDir();

@@ -331,8 +331,8 @@ struct FixedButton : public Button
 
 class KBD_Move
 {
-    static const int INITIAL_DELAY=500;
-    static const int MOVEMENT_DELAY=70;
+    static const int INITIAL_DELAY=2000;
+    static const int MOVEMENT_DELAY=100;
     long long initialTime=-3;
     public:
 
@@ -372,42 +372,35 @@ class KBD_Move
 
         if(initialTime<0)
             initialTime=getTimeMS();
-        bool timePassed=false;
-        if(time-initialTime>INITIAL_DELAY+MOVEMENT_DELAY)
-        {
-            initialTime+=MOVEMENT_DELAY;
-            timePassed=true;
-        }
+        long long delta = (time-initialTime - INITIAL_DELAY)/MOVEMENT_DELAY;
+
+        if(delta>0)
+            initialTime += delta*MOVEMENT_DELAY;
+        if(delta < 0)
+            if(IsKeyPressed(backKey) || IsKeyPressed(frontKey))
+                delta=1;
+            else
+                delta=0;
         if(IsKeyDown(backKey))
         {
-            if(IsKeyPressed(backKey) || timePassed)
-            {
-                myArray[currentPosition]->forceHover=false;
-                if(currentPosition<=0)
-                    currentPosition=n-1;
-                else
-                    currentPosition--;
-                myArray[currentPosition]->forceHover=true;
-            }
+            move(-delta);
             return;
         }
-        if(IsKeyDown(frontKey))
-        {
-            if(IsKeyPressed(frontKey) || timePassed)
+        else
+            if(IsKeyDown(frontKey))
             {
-                myArray[currentPosition]->forceHover=false;
-                if(currentPosition>=n-1)
-                    currentPosition=0;
-                else
-                    currentPosition++;
-                myArray[currentPosition]->forceHover=true;
+                move(delta);
+                return;
             }
-
-            return;
-        }
         initialTime=getTimeMS();
     }
-
+    void move(int delta)
+    {
+       myArray[currentPosition]->forceHover=false;
+        currentPosition+=delta;
+        currentPosition= (currentPosition+100*n)%n;
+        myArray[currentPosition]->forceHover=true;
+    }
 };
 long long getTimeMS()
 {
@@ -435,7 +428,8 @@ class GameTickRate
     }
     void pause()
     {
-        prevTime-=1LL*getTimeMCS();
+        if(prevTime>=0)
+            prevTime-=1LL*getTimeMCS();
     }
     int getFrames()
     {
