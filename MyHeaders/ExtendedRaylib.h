@@ -10,7 +10,6 @@ int mouseAction;
 
 long long getTimeMS();
 long long getTimeMCS();
-class Misc;
 struct Txt;
 struct TxtAligned;
 struct Button;
@@ -19,16 +18,15 @@ struct ButtonTxt;
 struct ButtonOnOff;
 struct ButtonInput;
 struct FixedButton;
-class KBD_Move;
+class KBD_Btn_Move;
 class GameTickRate;
 struct Directions
 {
     float left,up,right,down;
 };
-class Misc
+namespace ERay
 {
-public:
-    static void fullscreen(int iSw,int iSh,int &Sw,int &Sh)
+    void fullscreen(int iSw,int iSh,int &Sw,int &Sh)
     {
         int display=GetCurrentMonitor();
         if (IsWindowFullscreen())
@@ -47,15 +45,15 @@ public:
         Sh=GetScreenHeight();
     }
     template <class type>
-    static type abs(type a)
+    type abs(type a)
     {
         return (a<0) ? -a : a;
     }
-    static bool same_color(Color a,Color b)
+    bool same_color(Color a,Color b)
     {
         return a.a==b.a && a.b==b.b && a.g==b.g && a.r==b.r;
     }
-    static bool collision2D(Camera2D c,Rectangle r)
+    bool collision2D(Camera2D c,Rectangle r)
     {
         ///position of camera = c.offset.x-c.target.x
         ///distance between camera and rectangle = (c.target.x-r.x) = L
@@ -68,9 +66,22 @@ public:
         r.height*=c.zoom;
         return CheckCollisionPointRec(GetMousePosition(),r);
     }
-    static Rectangle smart_paint(float xStart,float size,short xOrientation,float yOrientation)
+    Rectangle smart_paint(float xStart,float size,short xOrientation,float yOrientation)
     {/// can flip images
         return {xStart ,0, size*xOrientation, size*yOrientation};
+    }
+    Rectangle getWindowSize()
+    {
+        return {0,0,(float)GetScreenWidth(),(float)GetScreenHeight()};
+    }
+    void align(float &coord,int startCoord,int length,int percent,int textSize)
+    {
+        int oldCoord=coord;
+        coord=coord + length*percent/100 -textSize/2;
+        if(coord + textSize > oldCoord + length)
+            coord = oldCoord + length - textSize;
+        if(coord<oldCoord)
+            coord=oldCoord;
     }
 
 };
@@ -102,25 +113,16 @@ struct Txt
     }
 };
 struct TxtAligned : public Txt
-{
-    TxtAligned(char const text[105],char const Xalign[],int width,char const Yalign[],int height,int fontSize,Color color)
-    :Txt(text,0,0,fontSize,color)
+{ /// remember
+    TxtAligned(char const text[105],Rectangle container,int xPercent,int yPercent,int fontSize,Color color)
+    :Txt(text,container.x,container.y,fontSize,color)
     {
-        align(Xalign,width,x,MeasureText(text,Fsz));
-        align(Yalign,height,y,Fsz);
+        align(x,container.x,container.width,xPercent,MeasureText(text,Fsz));
+        align(y,container.y,container.height,yPercent,Fsz);
     }
-    TxtAligned(char const text[105],int startX,int width,char const Xalign[],int startY,int height,char const Yalign[],int fontSize,Color color)
-    :Txt(text,startX,startY,fontSize,color)
+    void align(float &coord,int startCoord,int length,int percent,int textSize)
     {
-        align(Xalign,width,x,MeasureText(text,Fsz));
-        align(Yalign,height,y,Fsz);
-    }
-    void align(char const way[],int length,float &coord,int textSize)
-    {
-        if(!strcmp(way,"center"))
-            coord=coord+(length/2-textSize/2);
-        if(!strcmp(way,"end"))
-            coord=coord+(length-textSize);
+        ERay::align(coord,startCoord,length,percent,textSize);
     }
 };
 struct Button
@@ -142,7 +144,8 @@ struct Button
         strcpy(this->text,text);
         thickness=std::max(1,fontSize/10);
         this->fontSize=fontSize;
-        rect= {(float)startX,(float)startY,(float)MeasureText(text,fontSize)+10+thickness*2,fontSize+10+thickness*2};
+        rect= {(float)startX,(float)startY,
+        (float)MeasureText(text,fontSize)+10+thickness*2 , fontSize+10+thickness*2};
         forceHover=false;
         normalColor.text=color;
         (this->hoverColor).text=hoverColor;
@@ -204,18 +207,15 @@ struct Button
 struct ButtonAligned : public Button
 {
     ButtonAligned(){}
-    ButtonAligned(char const text[105],int startX,int width,char const Xalign[],int startY,int height,char const Yalign[],int fontSize,Color color,Color hoverColor)
-    :Button(text,startX,startY,fontSize,color,hoverColor)
+    ButtonAligned(char const text[105],Rectangle container,int xPercent,int yPercent,int fontSize,Color color,Color hoverColor)
+    :Button(text,container.x,container.y,fontSize,color,hoverColor)
     {
-        align(Xalign,width,rect.x,MeasureText(text,fontSize));
-        align(Yalign,height,rect.y,fontSize);
+        align(rect.x,container.x,container.width,xPercent,rect.width);
+        align(rect.y,container.y,container.height,yPercent,rect.height);
     }
-    void align(char const way[],int length,float &coord,int textSize)
+    void align(float &coord,int startCoord,int length,int percent,int textSize)
     {
-        if(!strcmp(way,"center"))
-            coord=coord+(length/2-textSize/2);
-        if(!strcmp(way,"end"))
-            coord=coord+(length-textSize);
+        ERay::align(coord,startCoord,length,percent,textSize);
     }
 };
 struct ButtonTxt : public Button
@@ -328,26 +328,67 @@ struct FixedButton : public Button
         DrawText(text,centerX,centerY,fontSize,color.text);
     }
 };
-
-class KBD_Move
-{
-    static const int INITIAL_DELAY=2000;
-    static const int MOVEMENT_DELAY=100;
+class KBD_Btn_Hold
+{ /// always part of the KBD_Btn_Move class
+    static const int INITIAL_DELAY=800;
+    static const int MOVEMENT_DELAY=80;
     long long initialTime=-3;
-    public:
 
-    int backKey,frontKey;
-    int n,currentPosition;
-    int defaulposition;
-    Button **myArray;
-    KBD_Move(){}
-    KBD_Move(Button *myArray[],int n,bool vertical=true,int defaulposition=0)
+    public:
+    void reset()
     {
-        this->defaulposition=currentPosition=defaulposition;
+        initialTime=-3;
+    }
+    int run(int frontKey,int backKey)
+    {
+        if(IsKeyReleased(frontKey) || IsKeyReleased(backKey))
+        { /// if we just stopped hitting a key
+            reset();
+            return 0;
+        }
+        if( !(IsKeyDown(frontKey) || IsKeyDown(backKey)) )
+            return 0; /// if no key is pressed
+
+        if(initialTime<0)
+            initialTime=getTimeMS();
+
+        long long currentTime = getTimeMS();
+        long long timePassed = currentTime - initialTime;
+        long long movement = (timePassed - INITIAL_DELAY)/MOVEMENT_DELAY;
+
+        if(movement<=0)
+            return 0;
+
+        initialTime += movement*MOVEMENT_DELAY;
+
+        if(IsKeyDown(frontKey))
+            return movement;
+        return -movement;
+    }
+};
+class KBD_Btn_Move
+{ /// allows to move through buttons with keyboard
+
+    KBD_Btn_Hold hold;
+    public:
+    int backKey,frontKey;
+    int currentPosition,defaultPosition;
+
+    Button **myArray;
+    int n=-1;
+
+    KBD_Btn_Move(){}
+    KBD_Btn_Move(Button *myArray[],int n,bool vertical=true,int defaultPosition=0)
+    {
+        if(n<1)
+            return;
+        this->n=n;
+        this->defaultPosition=this->currentPosition=defaultPosition;
+
         this->myArray=new Button* [n];
         for(int i=0;i<n;i++)
             this->myArray[i]=myArray[i];
-        this->n=n;
+
         if(vertical)
         {
             backKey=KEY_UP;
@@ -362,41 +403,23 @@ class KBD_Move
     void reset()
     {
         myArray[currentPosition]->forceHover=false;
-        currentPosition=defaulposition;
-        initialTime=-3;
-
+        currentPosition=defaultPosition;
+        hold.reset();
     }
     void run()
     {
-        long long time = getTimeMS();
-
-        if(initialTime<0)
-            initialTime=getTimeMS();
-        long long delta = (time-initialTime - INITIAL_DELAY)/MOVEMENT_DELAY;
-
-        if(delta>0)
-            initialTime += delta*MOVEMENT_DELAY;
-        if(delta < 0)
-            if(IsKeyPressed(backKey) || IsKeyPressed(frontKey))
-                delta=1;
-            else
-                delta=0;
-        if(IsKeyDown(backKey))
-        {
-            move(-delta);
+        if(n<1)
             return;
-        }
-        else
-            if(IsKeyDown(frontKey))
-            {
-                move(delta);
-                return;
-            }
-        initialTime=getTimeMS();
+        if(IsKeyPressed(frontKey))
+            move(1);
+        if(IsKeyPressed(backKey))
+            move(-1);
+
+        move(hold.run(frontKey,backKey));
     }
     void move(int delta)
     {
-       myArray[currentPosition]->forceHover=false;
+        myArray[currentPosition]->forceHover=false;
         currentPosition+=delta;
         currentPosition= (currentPosition+100*n)%n;
         myArray[currentPosition]->forceHover=true;

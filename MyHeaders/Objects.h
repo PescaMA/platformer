@@ -173,11 +173,13 @@ class Finish : public Object
 class MapObj
 {
 public:
+    std::string next_level_name; /// TO DO: finish implementing next_lvl
     std::map <std::pair<int,int>,int> currentMap;
     void saveMap(std::string fileName)
     {
         /// TO DO: make file maybe if aint existin'
         remove(fileName.c_str());
+
         std::ofstream fout(fileName);
         fout<<"start "<<myStart.x<<' '<<myStart.y<<'\n';
         fout<<"finish "<<myFinish.x<<' '<<myFinish.y<<'\n';
@@ -185,12 +187,14 @@ public:
             fout<<(it->first).first<<' '<<(it->first).second<<' '<<AllObjects[it->second]->UID<<'\n';
         fout.close();
     }
-    void loadMap(std::string fileName)
+    void loadMap(std::string fileName,std::string next_level_name)
     {
         currentMap.clear();
+        next_level_name.clear();
+        this->next_level_name=next_level_name;
         std::ifstream fin(fileName);
         if(!fin)
-        {std::cout<<"Error";return;}
+        {std::cout<<"Error, file does not exist!";return;}
 
         char c[10];
         fin>>c;
@@ -223,6 +227,10 @@ public:
             currentMap[coord]=UID_pairing[UID];
         }
         fin.close();
+    }
+    void restartMap()
+    {
+        /// great function so far
     }
     void drawMap(int transparency)
     {
@@ -288,7 +296,7 @@ public:
 
 
 void Object::movePlayer(char const c[10],int x,int y)
-{
+{ /// needs to access the map to check if moving the player to a certain position creates a collision
     Directions playerDir=myPlayer.getPrevDir();
     Directions objDir=getDir(x,y);
     float moveUp    = objDir.up - myPlayer.hitbox.y - myPlayer.hitbox.height;

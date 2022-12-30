@@ -37,7 +37,7 @@ void Loader::mainloop()
 }
 void Loader::loadMap(const char levelName[])
 {
-    myMap.loadMap(levelName);
+    myMap.loadMap(levelName,"");
 }
 
 int main()

@@ -243,8 +243,8 @@ public:
                                    xVelocity*0.99f);
         }
         else
-            if(Misc::abs(xVelocity)>MAX_X_VELOCITY_PER_FRAME
-               && Misc::abs(xVelocity)>Misc::abs(oldXVelocity))
+            if(ERay::abs(xVelocity)>MAX_X_VELOCITY_PER_FRAME
+               && ERay::abs(xVelocity)>ERay::abs(oldXVelocity))
                     xVelocity=oldXVelocity;
     }
     void addMovement()
@@ -324,7 +324,7 @@ public:
     {
         Color white=WHITE;
         white.a=transparency;
-        Rectangle rect=Misc::smart_paint(0,64,xFacing,1);
+        Rectangle rect=ERay::smart_paint(0,64,xFacing,1);
         Vector2 position={xCoord,yCoord};
         DrawTextureRec(ASSET_CHARACTER,rect,position,white);
         if(!hideHitbox)

@@ -5,6 +5,7 @@
 class Game
 {
     Exit exit;
+    Win_Screen winScreen;
     GameTickRate gameTick=GameTickRate(200);
 public:
     void commands()
@@ -16,10 +17,15 @@ public:
     }
     void run()
     {
+        if(myFinish.won==true)
+        {
+            winScreen.run(this);
+            return;
+        }
+
         if(exit.state == Exit::States::starting)
             gameTick.pause();
         exit.run(this);
-
         if(exit.state != Exit::States::off)
             return;
 
@@ -34,14 +40,8 @@ public:
                 myPlayer.presume();
                 myMap.checkAllCollisions();
             }
-
         }
         draw();
-    }
-    void exitscreen()
-    {
-
-
     }
     void  draw()
     {
@@ -55,5 +55,11 @@ public:
         ClearBackground(T_BLUE);
         myMap.drawMap(transparency);
         myPlayer.draw(transparency);
+    }
+    void restart()
+    {
+        myFinish.won = false;
+        myPlayer.reset();
+        myMap.restartMap();
     }
 };

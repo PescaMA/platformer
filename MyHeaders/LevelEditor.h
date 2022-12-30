@@ -8,13 +8,20 @@ extern bool hideHitbox;
 extern Start myStart;
 extern Finish myFinish;
 
+/// TO DO: make these classes readable by humanoid beings
+
 class ObjectSelector
 {
 public:
-    int *lastOnPage;
+    int *lastOnPage;/// array
+    int *currentPage; /// pointer
+    int *currentObject; /// pointer
     int pagesNr;
-    int *currentPage;
-    int *currentObject;
+    /*ObjectSelector():pagesNr=0{}
+    ObjectSelector():pagesNr=
+    {
+
+    }*/
     void draw(int transparency)
     {
         for(int i=lastOnPage[*currentPage];i<lastOnPage[*currentPage+1];i++)
@@ -71,7 +78,7 @@ class LevelEditor
     bool isObjectShown=false;
     Color areaColor=WHITE;
     Exit exit;
-    KBD_Move kbdMove;
+    KBD_Btn_Move kbdMove;
 
 public:
     LevelEditor()
@@ -92,7 +99,7 @@ public:
             int pos=screenWidth/2-(MAX_PAGES-1)*24-15+i*48;
             buttons[i]=FixedButton(TextFormat("%i",i+1),pos,screenHeight-110,30,30,28,BLACK,YELLOW);
         }
-        kbdMove=KBD_Move(pointerArray,MAX_PAGES,false);
+        kbdMove=KBD_Btn_Move(pointerArray,MAX_PAGES,false);
 
         buttons[currentPage].normalColor.text=GREEN;
         buttons[currentPage].hoverColor.text=GREEN;
@@ -155,7 +162,7 @@ public:
             if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
                     areaColor=WHITE;
         }
-        if(IsMouseButtonDown(0) && !Misc::same_color(areaColor,WHITE))
+        if(IsMouseButtonDown(0) && !ERay::same_color(areaColor,WHITE))
         {
             if(myMap.checkAllCollisionsE(getBigRectangle()))
                 areaColor=RED;
@@ -164,7 +171,7 @@ public:
         }
         if(IsMouseButtonReleased(0))
         {
-            if(obj->UID == myStart.UID || obj->UID == myFinish.UID || Misc::same_color(areaColor,WHITE))
+            if(obj->UID == myStart.UID || obj->UID == myFinish.UID || ERay::same_color(areaColor,WHITE))
             {
                 if(!myMap.checkAllCollisionsE(obj->getHitbox(mouseX,mouseY)))
                 {
@@ -189,8 +196,8 @@ public:
         int mouseX=GetMouseX();
         int mouseY=GetMouseY();
 
-        int nrHorObjs= Misc::abs(mouseX-startX)/obj->hitbox.width + 1;
-        int nrVerObjs= Misc::abs(mouseY-startY)/obj->hitbox.height + 1;
+        int nrHorObjs= ERay::abs(mouseX-startX)/obj->hitbox.width + 1;
+        int nrVerObjs= ERay::abs(mouseY-startY)/obj->hitbox.height + 1;
 
         int X = (startX<mouseX) ? startX : (startX - obj->hitbox.width*nrHorObjs);
         int Y = (startY<mouseY) ? startY : (startY - obj->hitbox.height*nrVerObjs);
@@ -238,7 +245,7 @@ public:
     {
         if(currentObject!=-1 && isObjectShown)
         {
-            if(IsMouseButtonDown(0) && !Misc::same_color(areaColor,WHITE))
+            if(IsMouseButtonDown(0) && !ERay::same_color(areaColor,WHITE))
             {
                 Rectangle rect=getBigRectangle();
                 DrawLine(rect.x,rect.y,rect.x+rect.width,rect.y,areaColor);

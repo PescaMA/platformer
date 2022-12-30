@@ -10,13 +10,14 @@ class Exit
 
 
 public:
-    KBD_Move kbdMove;
+    KBD_Btn_Move kbdMove;
     enum States {off, starting, going, returning, exiting};
     States state = off;
     Exit()
     {
-        Button *all[2]={&yes,&no};
-        kbdMove=KBD_Move(all,2,false,1);
+        Button *all[]={&yes,&no};
+        int n=sizeof(all)/sizeof(all[0]);
+        kbdMove=KBD_Btn_Move(all,2,false,1);
     }
     void run()
     {const char sure[]="Are you sure you want to quit?";
@@ -65,24 +66,54 @@ public:
     }
     bool stay()  {return  no.Lclicked() ;}
 };
+class Win_Screen
+{
+    TxtAligned message=TxtAligned("You won!",ERay::getWindowSize(),50,30,80,GREEN);
+    ButtonAligned restart=ButtonAligned("Restart",ERay::getWindowSize(),75,85,35,BLACK,RED);
+    KBD_Btn_Move kbdMove;
+    public:
+    Win_Screen()
+    {
+        Button *all[]={&restart};
+        int n=sizeof(all)/sizeof(all[0]);
+        kbdMove=KBD_Btn_Move(all,n,false,0);
+    }
+    template <class Game>
+    void run(Game game)
+    {
+        kbdMove.run();
+        if(restart.Lclicked())
+            game->restart();
+        draw();
+    }
+    void draw()
+    {
+        BeginDrawing();
+        ClearBackground(BLUE);
+        message.draw();
+        message.underline();
+        restart.draw();
+        EndDrawing();
+    }
+};
 class MainMenu
 {
-     TxtAligned name=TxtAligned("Platformer",0,screenWidth,"center",screenHeight*2/10,screenHeight/6,"start",50,BLACK);
-     ButtonAligned playOn=ButtonAligned("Continue",0,screenWidth,"center",screenHeight*4/10,screenHeight/6,"start",30,BLACK,GREEN);
-     ButtonAligned lvlSelect=ButtonAligned("Level Select",0,screenWidth,"center",screenHeight*5/10,screenHeight/6,"start",30,BLACK,GREEN);
-     ButtonAligned lvlEditor=ButtonAligned("Level Editor",0,screenWidth,"center",screenHeight*6/10,screenHeight/6,"start",30,BLACK,GREEN);
-     ButtonAligned exit=ButtonAligned("Exit",0,screenWidth,"center",screenHeight*7/10,screenHeight/6,"start",30,BLACK,GREEN);
+     TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
+     ButtonAligned playOn=ButtonAligned("Continue",ERay::getWindowSize(),50,40,30,BLACK,GREEN);
+     ButtonAligned lvlSelect=ButtonAligned("Level Select",ERay::getWindowSize(),50,50,30,BLACK,GREEN);
+     ButtonAligned lvlEditor=ButtonAligned("Level Editor",ERay::getWindowSize(),50,60,30,BLACK,GREEN);
+     ButtonAligned exit=ButtonAligned("Exit",ERay::getWindowSize(),50,70,30,BLACK,GREEN);
      int keyboardSelected = 0;
-     KBD_Move kbdMove;
+     KBD_Btn_Move kbdMove;
 public:
     MainMenu()
     {
-        Button *bList[4]={&playOn,&lvlSelect,&lvlEditor,&exit};
-        kbdMove=KBD_Move(bList,4);
+        Button *bList[]={&playOn,&lvlSelect,&lvlEditor,&exit};
+        int n=sizeof(bList)/sizeof(bList[0]);
+        kbdMove=KBD_Btn_Move(bList,n);
     }
     void run()
     {
-
         if(playOn.Lclicked())
         {
             strcpy(doing,"Game");

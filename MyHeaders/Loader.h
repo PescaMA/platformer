@@ -3,8 +3,8 @@
 #include <map>
 extern char doing[21];
 
-const int screenWidth=1000;
-const int screenHeight=640;
+const int screenWidth=800;
+const int screenHeight=600;
 int fps;
 Texture2D ASSET_CHARACTER;
 Texture2D ASSET_BLOCKS;
@@ -13,7 +13,7 @@ Object **AllObjects;
 int nrOfObjects;
 std::map<int,int> UID_pairing;
 
-
+void extraCheck();
 void loadAllObjects();
 class Loader
 {
@@ -45,33 +45,42 @@ void loadAllObjects()
     myFinish=Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
     Object static *AllObjectss[]=/// taking advantage of easier definition
     {
-        ///(int UID,int page,Texture2D image,int imageX,Rectangle hitbox)
+        ///Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox) is the function
+        ///page 1:
         &(Block1=Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
         &(Block2=Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
         &(Block3=Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
         &(Block4=Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
         &(Block5=Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
+        /// page 2:
         &myStart,
         &myFinish
     };
     nrOfObjects=sizeof(AllObjectss)/sizeof(AllObjectss[0]);
-    for(int i=0;i<nrOfObjects;i++) /// extra check
+    AllObjects=AllObjectss;
+
+    extraCheck();
+}
+void extraCheck()
+{
+    for(int i=0;i<nrOfObjects;i++)
     {
-        if(UID_pairing.find(AllObjectss[i]->UID) == UID_pairing.end())
-            UID_pairing[AllObjectss[i]->UID]=i; /// building map for loading
+        /// makes sure UID is unique and also creats a map for them
+        if(UID_pairing.find(AllObjects[i]->UID) == UID_pairing.end())
+            UID_pairing[AllObjects[i]->UID]=i; /// building map for loading
         else
         {
             std::cout<<"\n\nERROR. REPETITIVE OBJECT UNIQUE ID.\n\n";
             strcpy(doing,"Exiting");
         }
-        if(i && AllObjectss[i]->page < AllObjectss[i-1]->page)
+
+        /// makes sure pages are in ascending order
+        if(i && AllObjects[i]->page < AllObjects[i-1]->page)
         {
             std::cout<<"\n\nERROR. PAGES NOT IN ASCENDING ORDER.\n\n";
             strcpy(doing,"Exiting");
         }
     }
-
-    AllObjects=AllObjectss;
 }
 
 class LevelSelect
