@@ -3,9 +3,8 @@ extern char doing[21];
 extern const int screenWidth;
 extern const int screenHeight;
 extern int nrOfObjects;
-extern Object **AllObjects;
+extern RayJump::Object **RayJump::AllObjects;
 extern bool hideHitbox;
-extern Start myStart;
 extern Finish myFinish;
 
 /// TO DO: make these classes readable by humanoid beings
@@ -26,27 +25,27 @@ public:
     {
         for(int i=lastOnPage[*currentPage];i<lastOnPage[*currentPage+1];i++)
         {
-            AllObjects[i]->draw(getX(i),getY(),transparency);
+            RayJump::AllObjects[i]->draw(getX(i),getY(),transparency);
         }
     }
     void run()
     {
         for(int i=lastOnPage[*currentPage];i<lastOnPage[*currentPage+1];i++)
         {
-            Rectangle rec={getX(i),getY(),AllObjects[i]->hitbox.width,AllObjects[i]->hitbox.height};
+            Rectangle rec={getX(i),getY(),RayJump::AllObjects[i]->hitbox.width,RayJump::AllObjects[i]->hitbox.height};
             if(IsMouseButtonPressed(0) && CheckCollisionPointRec(GetMousePosition(),rec))
                *currentObject=i;
         }
     }
     void buildLastOnPage()
     {
-        pagesNr=AllObjects[nrOfObjects-2]->page;
+        pagesNr=RayJump::AllObjects[nrOfObjects-2]->page;
         lastOnPage=new int[pagesNr+1];
         lastOnPage[0]=0;
         int poz=1;
 
         for(int i=1;i<nrOfObjects;i++)
-            if(AllObjects[i]->page!=AllObjects[i-1]->page)
+            if(RayJump::AllObjects[i]->page!=RayJump::AllObjects[i-1]->page)
             {
                 lastOnPage[poz]=i;
                 poz++;
@@ -136,7 +135,7 @@ public:
     {
         if(!isObjectShown)
             return;
-        Object *obj= (AllObjects[currentObject]);
+        RayJump::Object *obj= (RayJump::AllObjects[currentObject]);
         int mouseX=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
         int mouseY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
 
@@ -192,7 +191,7 @@ public:
     }
     Rectangle getBigRectangle()
     {
-        Object *obj= (AllObjects[currentObject]);
+        RayJump::Object *obj= (RayJump::AllObjects[currentObject]);
         int mouseX=GetMouseX();
         int mouseY=GetMouseY();
 
@@ -212,8 +211,8 @@ public:
         ///std::cout<<rect.x<<' '<<rect.y<<' '<<rect.width<<' '<<rect.height<<'\n';
         if(myMap.checkAllCollisionsE(rect))
             return;
-        int width=AllObjects[currentObject]->hitbox.width;
-        int height=AllObjects[currentObject]->hitbox.height;
+        int width=RayJump::AllObjects[currentObject]->hitbox.width;
+        int height=RayJump::AllObjects[currentObject]->hitbox.height;
         for(int i=0;width*i<rect.width;i++)
             for(int j=0;height*j<rect.height;j++)
             {
@@ -255,7 +254,7 @@ public:
             }
             else
             {
-                Object *obj= (AllObjects[currentObject]);
+                RayJump::Object *obj= (RayJump::AllObjects[currentObject]);
                 obj->draw(GetMouseX()-obj->hitbox.x-obj->hitbox.width/2,
                      GetMouseY()-obj->hitbox.y-obj->hitbox.height/2,
                      transparency);

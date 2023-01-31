@@ -9,7 +9,7 @@ int fps;
 Texture2D ASSET_CHARACTER;
 Texture2D ASSET_BLOCKS;
 Texture2D ASSET_SPECIAL;
-Object **AllObjects;
+
 int nrOfObjects;
 std::map<int,int> UID_pairing;
 
@@ -43,21 +43,21 @@ void loadAllObjects()
 {
     myStart=Start(0,2,ASSET_SPECIAL,0,{5,0,22,64});
     myFinish=Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
-    Object static *AllObjectss[]=/// taking advantage of easier definition
+     RayJump::Object static *AllObjectss[]=/// taking advantage of easier definition
     {
         ///Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox) is the function
         ///page 1:
-        &(Block1=Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
-        &(Block2=Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
-        &(Block3=Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
-        &(Block4=Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
-        &(Block5=Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
+        &( Block1= Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
+        &( Block2= Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
+        &( Block3= Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
+        &( Block4= Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
+        &( Block5= Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
         /// page 2:
         &myStart,
         &myFinish
     };
     nrOfObjects=sizeof(AllObjectss)/sizeof(AllObjectss[0]);
-    AllObjects=AllObjectss;
+    RayJump::AllObjects=AllObjectss;
 
     extraCheck();
 }
@@ -66,8 +66,8 @@ void extraCheck()
     for(int i=0;i<nrOfObjects;i++)
     {
         /// makes sure UID is unique and also creats a map for them
-        if(UID_pairing.find(AllObjects[i]->UID) == UID_pairing.end())
-            UID_pairing[AllObjects[i]->UID]=i; /// building map for loading
+        if(UID_pairing.find(RayJump::AllObjects[i]->UID) == UID_pairing.end())
+            UID_pairing[RayJump::AllObjects[i]->UID]=i; /// building map for loading
         else
         {
             std::cout<<"\n\nERROR. REPETITIVE OBJECT UNIQUE ID.\n\n";
@@ -75,7 +75,7 @@ void extraCheck()
         }
 
         /// makes sure pages are in ascending order
-        if(i && AllObjects[i]->page < AllObjects[i-1]->page)
+        if(i && RayJump::AllObjects[i]->page < RayJump::AllObjects[i-1]->page)
         {
             std::cout<<"\n\nERROR. PAGES NOT IN ASCENDING ORDER.\n\n";
             strcpy(doing,"Exiting");

@@ -1,7 +1,9 @@
 #ifndef OBJECTS
 #define OBJECTS
+
 #include "ExtendedRaylib.h"
 #include "Player.h"
+#include "RayJumpHeadears.h"
 #include <map>
 #include <utility> /// for pair
 #include <fstream> /// for accessing stored levels
@@ -9,29 +11,11 @@
 extern Texture2D ASSET_BLOCKS;
 extern char doing[21];
 extern std::map<int,int> UID_pairing;
-class Object;
-class Block;
 class Start;
 class Finish;
 class MapObj;
 
-class Object
-{
-    /// D,U,L,R = directions (down, ...), p = player, b = block
-    /*#define UbDp (1.0f*(hitbox.y+y)  -  (myPlayer.getPrevHitbox().y+myPlayer.hitbox.height))
-    #define LbRp (1.0f*(x+hitbox.x)  -  (myPlayer.getPrevHitbox().x+myPlayer.hitbox.width))
-    #define UpDb (1.0f*(myPlayer.getPrevHitbox().y)  -  (y+hitbox.y+hitbox.height))
-    #define LpRb (1.0f*(myPlayer.getPrevHitbox().x)  -  (x+hitbox.x+hitbox.width))
-*/
-    public:
-    bool canWJ=false;
-    Texture2D image;
-    int imageX;
-    int UID;
-    int page;
-    Rectangle hitbox;
-    Object(){}
-    Directions getDir(int x,int y)
+    Directions RayJump::Object::getDir(int x,int y)
     {
         Directions rez;
         rez.up=y+hitbox.y;
@@ -40,18 +24,18 @@ class Object
         rez.right=x+hitbox.x+hitbox.width;
         return rez;
     }
-    Rectangle getHitbox(int x,int y)
+    Rectangle RayJump::Object::getHitbox(int x,int y)
     {
         return {x+hitbox.x,y+hitbox.y,hitbox.width,hitbox.height};
     }
-    Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):page(page)
+    RayJump::Object::Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):page(page)
     {
         this->UID=UID;
         this->image=image;
         this->imageX=imageX;
         this->hitbox=hitbox;
     }
-    void virtual draw(int x,int y,int transparency=255)
+    void RayJump::Object::draw(int x,int y,int transparency)
     {
         Color white=WHITE;
         white.a=transparency;
@@ -65,23 +49,18 @@ class Object
         }
 
     }
-    void movePlayer(char const c[10],int x,int y); /// Had to declare elsewhere
-    void virtual collisionEffect(int x,int y){}
-    void virtual specialEffect(){}
-    Vector2 const virtual getImageSize()
+    Vector2 const RayJump::Object::getImageSize()
     {
         return {32,32};
     }
-    bool collision(int x,int y,Rectangle entity)
+    bool RayJump::Object::collision(int x,int y,Rectangle entity)
     {
         if(CheckCollisionRecs(entity,this->getHitbox(x,y)))
             return true;
         return false;
     }
 
-};
-extern Object **AllObjects;
-class Block : public Object
+class Block : public RayJump::Object
 {
     public:
     Block(){}
@@ -105,7 +84,7 @@ class Block : public Object
     }
 };
 Block Block1,Block2,Block3,Block4,Block5;
-class Start : public Object
+class Start : public RayJump::Object
 {
     public:
     int x=0,y=0;
@@ -123,11 +102,11 @@ class Start : public Object
     }
     bool collision(Rectangle entity)
     {
-        return Object::collision(x,y,entity);
+        return RayJump::Object::collision(x,y,entity);
     }
     void draw(int transparency=255)
     {
-        return Object::draw(x,y,transparency);
+        return RayJump::Object::draw(x,y,transparency);
     }
 
 }myStart;
@@ -148,7 +127,7 @@ void Player::reset()
 }
 
 
-class Finish : public Object
+class Finish : public RayJump::Object
 {
     public:
     int x=100,y=0;
@@ -158,11 +137,11 @@ class Finish : public Object
     Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){}
     void draw(int transparency)
     {
-        Object::draw(x,y,transparency);
+        RayJump::Object::draw(x,y,transparency);
     }
     bool collision(Rectangle entity)
     {
-        return Object::collision(x,y,entity);
+        return RayJump::Object::collision(x,y,entity);
     }
     void collisionEffect()
     {
@@ -184,7 +163,7 @@ public:
         fout<<"start "<<myStart.x<<' '<<myStart.y<<'\n';
         fout<<"finish "<<myFinish.x<<' '<<myFinish.y<<'\n';
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-            fout<<(it->first).first<<' '<<(it->first).second<<' '<<AllObjects[it->second]->UID<<'\n';
+            fout<<(it->first).first<<' '<<(it->first).second<<' '<<RayJump::AllObjects[it->second]->UID<<'\n';
         fout.close();
     }
     void loadMap(std::string fileName,std::string next_level_name)
@@ -237,14 +216,14 @@ public:
         myStart.draw(transparency);
         myFinish.draw(transparency);
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-            AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
+            RayJump::AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
     }
     void checkAllCollisions()
     {
         if(myFinish.collision(myPlayer.getHitbox()))myFinish.collisionEffect();
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
         {
-            Object *obj=AllObjects[it->second];
+            RayJump::Object *obj=RayJump::AllObjects[it->second];
             if(obj->collision((it->first).first , (it->first).second , myPlayer.getHitbox()))
                 obj->collisionEffect((it->first).first , (it->first).second);
             if(obj->canWJ)
@@ -259,7 +238,7 @@ public:
         if(myFinish.collision(entity)) return true;
         if(myStart.collision(entity))  return true;
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+            if(RayJump::AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
                 return true;
         return false;
     }
@@ -270,7 +249,7 @@ public:
     std::pair<int,int> getCollisionE(Rectangle entity)
     {
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+            if(RayJump::AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
                 return {(it->first).first , (it->first).second};
         return {-999999,-999999};
     }
@@ -286,7 +265,7 @@ public:
     {
         Rectangle entity={pos.x,pos.y,1,1};
         for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-            if(AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
+            if(RayJump::AllObjects[it->second]->collision((it->first).first , (it->first).second , entity))
             {
                 currentMap.erase(it);
                 return;
@@ -295,7 +274,7 @@ public:
 } myMap;
 
 
-void Object::movePlayer(char const c[10],int x,int y)
+void RayJump::Object::movePlayer(char const c[10],int x,int y)
 { /// needs to access the map to check if moving the player to a certain position creates a collision
     Directions playerDir=myPlayer.getPrevDir();
     Directions objDir=getDir(x,y);

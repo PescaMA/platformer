@@ -5,6 +5,8 @@
 #include "raylib.h"
 #endif // RAYLIB.H
 #include <chrono>
+#include <iostream>
+#include <string.h>
 
 int mouseAction;
 
