@@ -40,14 +40,14 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1675278646 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1675285332 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	<map>
 
-1675278646 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1675285574 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
 
-1675278655 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1675285829 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
 
-1675278646 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+1675285579 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
 
 1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
 	"raylib.h"
@@ -58,13 +58,15 @@
 	<iostream>
 	<string.h>
 
-1675278611 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+1675285579 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
 	<map>
 	<utility>
 	<fstream>
 	<stdio.h>
 
-1675278646 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1675285830 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+	"ExtendedRaylib.h"
+	"RayJumpHeadears.h"
 	<cmath>
 
 1668530977 d:\code blocks\probleme interesante\raylib\platformer\myheaders\mapobj.h
@@ -83,11 +85,11 @@
 
 1675278611 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\objects.cpp
 
-1675278024 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\player.cpp
+1675279067 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\player.cpp
 
 1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\settings.cpp
 
-1675278611 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
+1675285618 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
 	"ExtendedRaylib.h"
 	<cmath>
 	<map>

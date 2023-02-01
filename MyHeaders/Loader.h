@@ -1,29 +1,33 @@
-
 #include <map>
 
-    void RayJump::Loader::load()
-    {
-        InitWindow(screenWidth,screenHeight,"Platformer");
-        fps=30;
-        SetTargetFPS(fps);
-        SetExitKey(0);
-        ASSET_CHARACTER=LoadTexture("Images/character.png");
-        ASSET_BLOCKS=LoadTexture("Images/blocks.png");
-        ASSET_SPECIAL=LoadTexture("Images/special.png");
-        loadAllObjects();
-    }
-    void RayJump::Loader::unload()
-    {
-        UnloadTexture(ASSET_CHARACTER);
-        UnloadTexture(ASSET_BLOCKS);
-        CloseWindow();
-    }
+/*********************************************
+*
+*               L O A D E R
+*
+**********************************************/
+void RayJump::Loader::load()
+{
+    InitWindow(screenWidth,screenHeight,"Platformer");
+    fps=30;
+    SetTargetFPS(fps);
+    SetExitKey(0);
+    ASSET_CHARACTER=LoadTexture("Images/character.png");
+    ASSET_BLOCKS=LoadTexture("Images/blocks.png");
+    ASSET_SPECIAL=LoadTexture("Images/special.png");
+    loadAllObjects();
+}
+void RayJump::Loader::unload()
+{
+    UnloadTexture(ASSET_CHARACTER);
+    UnloadTexture(ASSET_BLOCKS);
+    CloseWindow();
+}
 
 void RayJump::Loader::loadAllObjects()
 {
-    RayJump::myStart=RayJump::Start(0,2,ASSET_SPECIAL,0,{5,0,22,64});
-    RayJump::myFinish=RayJump::Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
-     RayJump::Object static *AllObjectss[]=/// taking advantage of easier definition
+    RayJump::myStart=RayJump::Start(0,2,ASSET_SPECIAL,0, {5,0,22,64});
+    RayJump::myFinish=RayJump::Finish(1,2,ASSET_SPECIAL,32, {0,0,32,32});
+    RayJump::Object static *AllObjectss[]=/// taking advantage of easier definition
     {
         ///Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox) is the function
         ///page 1:
@@ -43,7 +47,7 @@ void RayJump::Loader::loadAllObjects()
 }
 void RayJump::Loader::extraCheck()
 {
-    for(int i=0;i<nrOfObjects;i++)
+    for(int i=0; i<nrOfObjects; i++)
     {
         /// makes sure UID is unique and also creats a map for them
         if(UID_pairing.find(RayJump::AllObjects[i]->UID) == UID_pairing.end())
@@ -67,14 +71,19 @@ void RayJump::Loader::loadMap(const char levelName[])
     RayJump::myMap.loadMap(levelName,"");
 }
 
+/*********************************************
+*
+*               LVL SELECT
+*
+**********************************************/
 
-    void RayJump::LevelSelect::run()
-    {
-        draw();
-    }
-    void RayJump::LevelSelect::draw()
-    {
-        BeginDrawing();
-        ClearBackground(BLUE);
-        EndDrawing();
-    }
+void RayJump::LevelSelect::run()
+{
+    draw();
+}
+void RayJump::LevelSelect::draw()
+{
+    BeginDrawing();
+    ClearBackground(BLUE);
+    EndDrawing();
+}
