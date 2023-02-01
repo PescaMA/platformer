@@ -8,9 +8,7 @@
 #include <utility> /// for pair
 #include <fstream> /// for accessing stored levels
 #include <stdio.h> /// for replacing (meaning deleting) current level
-extern Texture2D ASSET_BLOCKS;
-extern char doing[21];
-extern std::map<int,int> UID_pairing;
+
 class MapObj;
 
     Directions RayJump::Object::getDir(int x,int y)
@@ -166,8 +164,6 @@ void Player::reset()
     isdashing=false;
     presume();
 }
-
-
 
     RayJump::Finish::Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){}
     void RayJump::Finish::draw(int transparency)

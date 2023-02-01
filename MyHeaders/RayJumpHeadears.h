@@ -4,6 +4,13 @@
 #include <map>
 namespace RayJump
 {
+    char doing[21]="MainMenu";
+    const int screenWidth=800;
+    const int screenHeight=600;
+    int fps;
+    int hideHitbox=false;
+
+
     class Object
 {
     public:
@@ -73,6 +80,68 @@ public:
     void deleteClick(Vector2 pos);
 };
 
+class Exit
+{
+    const float  X=RayJump::screenWidth/8, Y=RayJump::screenHeight/3.0f;
+    const float WIDTH=RayJump::screenWidth*6/8.0f,HEIGHT=RayJump::screenHeight/3.0f;
+    Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
+    Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
+
+public:
+    KBD_Btn_Move kbdMove;
+    enum States {off, starting, going, returning, exiting};
+    States state = off;
+    Exit();
+    void run();
+    template <class drawable>
+    void run(drawable background);
+    bool leave();
+    bool stay();
+};
+
+class Win_Screen
+{
+    TxtAligned message=TxtAligned("You won!",ERay::getWindowSize(),50,30,80,GREEN);
+    ButtonAligned restart=ButtonAligned("Restart",ERay::getWindowSize(),75,85,35,BLACK,RED);
+    KBD_Btn_Move kbdMove;
+    public:
+    Win_Screen();
+    template <class Game>
+    void run(Game game);
+    void draw();
+};
+
+class Loader
+{
+public:
+    static void load();
+    static void unload();
+    static void mainloop();
+    static void extraCheck();
+    static void loadAllObjects();
+    static void loadMap(const char levelName[]);
+};
+
+class LevelSelect
+{
+    public:
+    void run();
+    void draw();
+};
+
+class Game
+{
+    Exit exit;
+    Win_Screen winScreen;
+    GameTickRate gameTick=GameTickRate(200);
+public:
+    void commands();
+    void run();
+    void draw();
+    void draw_content(int transparency);
+    void restart();
+};
+
 /********************************************
 *
 *                 GLOBALS
@@ -85,10 +154,6 @@ public:
     Start myStart;
     Finish myFinish;
     MapObj myMap;
-    char doing[21];
-    const int screenWidth=800;
-    const int screenHeight=600;
-    int fps;
     Texture2D ASSET_CHARACTER;
     Texture2D ASSET_BLOCKS;
     Texture2D ASSET_SPECIAL;

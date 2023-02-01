@@ -1,10 +1,5 @@
 #include "ExtendedRaylib.h"
-extern char doing[21];
-extern const int screenWidth;
-extern const int screenHeight;
-extern int nrOfObjects;
-extern RayJump::Object **RayJump::AllObjects;
-extern bool hideHitbox;
+
 
 /// TO DO: make these classes readable by humanoid beings
 
@@ -38,18 +33,18 @@ public:
     }
     void buildLastOnPage()
     {
-        pagesNr=RayJump::AllObjects[nrOfObjects-2]->page;
+        pagesNr=RayJump::AllObjects[RayJump::nrOfObjects-2]->page;
         lastOnPage=new int[pagesNr+1];
         lastOnPage[0]=0;
         int poz=1;
 
-        for(int i=1;i<nrOfObjects;i++)
+        for(int i=1;i<RayJump::nrOfObjects;i++)
             if(RayJump::AllObjects[i]->page!=RayJump::AllObjects[i-1]->page)
             {
                 lastOnPage[poz]=i;
                 poz++;
             }
-        lastOnPage[poz]=nrOfObjects;
+        lastOnPage[poz]=RayJump::nrOfObjects;
     }
 protected:
     int getN()
@@ -58,11 +53,11 @@ protected:
     }
     float getX (int i)
     {
-        return screenWidth/2-(getN()-1)*32-16+(i-lastOnPage[*currentPage])*64;
+        return RayJump::screenWidth/2-(getN()-1)*32-16+(i-lastOnPage[*currentPage])*64;
     }
     float getY ()
     {
-        return screenHeight-70;
+        return RayJump::screenHeight-70;
     }
 } objSel;
 class LevelEditor
@@ -75,7 +70,7 @@ class LevelEditor
     int startX=0,startY=0;
     bool isObjectShown=false;
     Color areaColor=WHITE;
-    Exit exit;
+    RayJump::Exit exit;
     KBD_Btn_Move kbdMove;
 
 public:
@@ -94,8 +89,8 @@ public:
         for(int i=0;i<MAX_PAGES;i++)
         {
             pointerArray[i]=&(buttons[i]);
-            int pos=screenWidth/2-(MAX_PAGES-1)*24-15+i*48;
-            buttons[i]=FixedButton(TextFormat("%i",i+1),pos,screenHeight-110,30,30,28,BLACK,YELLOW);
+            int pos=RayJump::screenWidth/2-(MAX_PAGES-1)*24-15+i*48;
+            buttons[i]=FixedButton(TextFormat("%i",i+1),pos,RayJump::screenHeight-110,30,30,28,BLACK,YELLOW);
         }
         kbdMove=KBD_Btn_Move(pointerArray,MAX_PAGES,false);
 
@@ -105,15 +100,15 @@ public:
     void  run()
     {
         exit.run(this);
-        if(exit.state == Exit::States::starting)
+        if(exit.state == RayJump::Exit::States::starting)
             isObjectShown=false;
-        if(exit.state != Exit::States::off)
+        if(exit.state != RayJump::Exit::States::off)
             return;
         objSel.run();
         kbdMove.run();
 
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))
-            hideHitbox=!hideHitbox;
+            RayJump::hideHitbox=!RayJump::hideHitbox;
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_S))
             RayJump::myMap.saveMap("Levels/Lvl_Editor.txt");
 
@@ -121,7 +116,7 @@ public:
             if(buttons[i].Lclicked())
                 changeButton(i);
 
-        if(GetMouseY()+16>screenHeight-100)
+        if(GetMouseY()+16>RayJump::screenHeight-100)
             isObjectShown=false;
         else
             isObjectShown=true;
@@ -263,9 +258,9 @@ public:
     }
     void drawSelector(int transparency)
     {
-        DrawRectangle(0,screenHeight-114,screenWidth,114,{237, 237, 157,(unsigned char)transparency});
+        DrawRectangle(0,RayJump::screenHeight-114,RayJump::screenWidth,114,{237, 237, 157,(unsigned char)transparency});
         Color T_BLACK=BLACK; T_BLACK.a=transparency;
-        DrawRectangle(0,screenHeight-120,screenWidth,5,T_BLACK);
+        DrawRectangle(0,RayJump::screenHeight-120,RayJump::screenWidth,5,T_BLACK);
         objSel.draw(transparency);
         for(int i=0;i<MAX_PAGES;i++)
             buttons[i].draw(transparency);

@@ -1,25 +1,12 @@
 #include "ExtendedRaylib.h"
-extern char doing[21];
 
-class Exit
-{
-    const float  X=screenWidth/8, Y=screenHeight/3.0f;
-    const float WIDTH=screenWidth*6/8.0f,HEIGHT=screenHeight/3.0f;
-    Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
-    Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
-
-
-public:
-    KBD_Btn_Move kbdMove;
-    enum States {off, starting, going, returning, exiting};
-    States state = off;
-    Exit()
+    RayJump::Exit::Exit()
     {
         Button *all[]={&yes,&no};
         int n=sizeof(all)/sizeof(all[0]);
         kbdMove=KBD_Btn_Move(all,2,false,1);
     }
-    void run()
+    void RayJump::Exit::run()
     {const char sure[]="Are you sure you want to quit?";
 
         DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
@@ -28,7 +15,7 @@ public:
         no.draw();
     }
     template <class drawable>
-    void run(drawable background)
+    void RayJump::Exit::run(drawable background)
     {
         if(state == returning || state == exiting)
             state = off;
@@ -44,7 +31,7 @@ public:
         if(state == going && yes.Lclicked())
         {
             state =exiting;
-            strcpy(doing,"MainMenu");
+            strcpy(RayJump::doing,"MainMenu");
         }
 
 
@@ -60,33 +47,28 @@ public:
         no.draw();
         EndDrawing();
     }
-    bool leave()
+    bool RayJump::Exit::leave()
     {
         return yes.Lclicked();
     }
-    bool stay()  {return  no.Lclicked() ;}
-};
-class Win_Screen
-{
-    TxtAligned message=TxtAligned("You won!",ERay::getWindowSize(),50,30,80,GREEN);
-    ButtonAligned restart=ButtonAligned("Restart",ERay::getWindowSize(),75,85,35,BLACK,RED);
-    KBD_Btn_Move kbdMove;
-    public:
-    Win_Screen()
+    bool RayJump::Exit::stay()  {return  no.Lclicked() ;}
+
+
+    RayJump::Win_Screen::Win_Screen()
     {
         Button *all[]={&restart};
         int n=sizeof(all)/sizeof(all[0]);
         kbdMove=KBD_Btn_Move(all,n,false,0);
     }
     template <class Game>
-    void run(Game game)
+    void RayJump::Win_Screen::run(Game game)
     {
         kbdMove.run();
         if(restart.Lclicked())
             game->restart();
         draw();
     }
-    void draw()
+    void RayJump::Win_Screen::draw()
     {
         BeginDrawing();
         ClearBackground(BLUE);
@@ -95,7 +77,7 @@ class Win_Screen
         restart.draw();
         EndDrawing();
     }
-};
+
 class MainMenu
 {
      TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
@@ -116,21 +98,22 @@ public:
     {
         if(playOn.Lclicked())
         {
-            strcpy(doing,"Game");
-            Loader::loadMap("Levels/Lvl_1.txt");
+            strcpy(RayJump::doing,"Game");
+            RayJump::Loader::loadMap("Levels/Lvl_1.txt");
         }
         if(lvlSelect.Lclicked())
-            strcpy(doing,"LevelSelect");
+            strcpy(RayJump::doing,"LevelSelect");
         if(lvlEditor.Lclicked())
         {
-            strcpy(doing,"LevelEditor");
-            Loader::loadMap("Levels/Lvl_Editor.txt");
+            strcpy(RayJump::doing,"LevelEditor");
+            RayJump::Loader::loadMap("Levels/Lvl_Editor.txt");
         }
 
         if(exit.Lclicked())
-            strcpy(doing,"Exiting");
-        if(strcmp(doing,"MainMenu"))
+            strcpy(RayJump::doing,"Exiting");
+        if(strcmp(RayJump::doing,"MainMenu"))
             kbdMove.reset();
+
         draw();
         kbdMove.run();
     }

@@ -1,8 +1,7 @@
 #include "ExtendedRaylib.h"
 
 #include <cmath>
-bool hideHitbox=false;
-extern Texture2D ASSET_CHARACTER;
+
 class Player
 {
 /**********************************
@@ -326,8 +325,8 @@ public:
         white.a=transparency;
         Rectangle rect=ERay::smart_paint(0,64,xFacing,1);
         Vector2 position={xCoord,yCoord};
-        DrawTextureRec(ASSET_CHARACTER,rect,position,white);
-        if(!hideHitbox)
+        DrawTextureRec(RayJump::ASSET_CHARACTER,rect,position,white);
+        if(!RayJump::hideHitbox)
             DrawRectangleLinesEx(getHitbox(),1,GREEN);
     }
 

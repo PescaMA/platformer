@@ -5,16 +5,7 @@
 #include "MyHeaders/Game.h"
 #include "MyHeaders/LevelEditor.h"
 
-char doing[21]="MainMenu";
-
-/**********************************
-*
-*
-* Cross header function definitions:
-*
-*
-***********************************/
-void Loader::mainloop()
+void RayJump::Loader::mainloop()
 {
     LevelEditor lvlEditor;
     MainMenu mainMenu;
@@ -34,14 +25,10 @@ void Loader::mainloop()
             SetMouseCursor(mouseAction); /// exiting holdClicking from a button
     }
 }
-void Loader::loadMap(const char levelName[])
-{
-    RayJump::myMap.loadMap(levelName,"");
-}
 
 int main()
 {
-    Loader::load();
-    Loader::mainloop();
-    Loader::unload();
+    RayJump::Loader::load();
+    RayJump::Loader::mainloop();
+    RayJump::Loader::unload();
 }

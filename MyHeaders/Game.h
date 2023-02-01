@@ -1,21 +1,15 @@
 #include "Objects.h"
 #include "ExtendedRaylib.h"
+#include "RayJumpHeadears.h"
 
-
-class Game
-{
-    Exit exit;
-    Win_Screen winScreen;
-    GameTickRate gameTick=GameTickRate(200);
-public:
-    void commands()
+    void RayJump::Game::commands()
     {
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))
-            hideHitbox=!hideHitbox;
+            RayJump::hideHitbox=!RayJump::hideHitbox;
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_R))
             myPlayer.reset();
     }
-    void run()
+    void RayJump::Game::run()
     {
         if(RayJump::myFinish.won==true)
         {
@@ -43,23 +37,22 @@ public:
         }
         draw();
     }
-    void  draw()
+    void RayJump::Game::draw()
     {
         BeginDrawing();
             draw_content(255);
         EndDrawing();
     }
-    void draw_content(int transparency)
+    void RayJump::Game::draw_content(int transparency)
     {
         Color T_BLUE=BLUE;   T_BLUE.a=transparency;
         ClearBackground(T_BLUE);
         RayJump::myMap.drawMap(transparency);
         myPlayer.draw(transparency);
     }
-    void restart()
+    void RayJump::Game::restart()
     {
         RayJump::myFinish.won = false;
         myPlayer.reset();
         RayJump::myMap.restartMap();
     }
-};

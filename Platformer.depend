@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1675266018 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
+1675268753 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
 	<iostream>
 	<string.h>
 	"MyHeaders/Loader.h"
@@ -43,19 +43,20 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1675265646 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1675269780 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	"ExtendedRaylib.h"
-	"Objects.h"
+	"RayJumpHeadears.h"
 	<map>
 
-1675265962 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1675270035 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
 	"Objects.h"
 	"ExtendedRaylib.h"
+	"RayJumpHeadears.h"
 
-1675266008 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1675270421 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
 	"ExtendedRaylib.h"
 
-1675196707 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+1675270365 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
 	"ExtendedRaylib.h"
 
 1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
@@ -67,7 +68,7 @@
 	<iostream>
 	<string.h>
 
-1675266710 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+1675268703 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
 	"ExtendedRaylib.h"
 	"Player.h"
 	"RayJumpHeadears.h"
@@ -76,7 +77,7 @@
 	<fstream>
 	<stdio.h>
 
-1672336255 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1675267673 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
 	"ExtendedRaylib.h"
 	<cmath>
 
@@ -100,6 +101,6 @@
 
 1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\settings.cpp
 
-1675265882 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
+1675270365 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
 	<map>
 

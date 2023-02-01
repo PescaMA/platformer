@@ -1,24 +1,8 @@
 #include "ExtendedRaylib.h"
-#include "Objects.h"
+#include "RayJumpHeadears.h"
 #include <map>
-extern char doing[21];
 
-const int screenWidth=800;
-const int screenHeight=600;
-int fps;
-Texture2D ASSET_CHARACTER;
-Texture2D ASSET_BLOCKS;
-Texture2D ASSET_SPECIAL;
-
-int nrOfObjects;
-std::map<int,int> UID_pairing;
-
-void extraCheck();
-void loadAllObjects();
-class Loader
-{
-public:
-    static void load()
+    void RayJump::Loader::load()
     {
         InitWindow(screenWidth,screenHeight,"Platformer");
         fps=30;
@@ -29,17 +13,14 @@ public:
         ASSET_SPECIAL=LoadTexture("Images/special.png");
         loadAllObjects();
     }
-    static void unload()
+    void RayJump::Loader::unload()
     {
         UnloadTexture(ASSET_CHARACTER);
         UnloadTexture(ASSET_BLOCKS);
         CloseWindow();
     }
-    static void mainloop();
-    static void loadMap(const char levelName[]);
-};
 
-void loadAllObjects()
+void RayJump::Loader::loadAllObjects()
 {
     RayJump::myStart=RayJump::Start(0,2,ASSET_SPECIAL,0,{5,0,22,64});
     RayJump::myFinish=RayJump::Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
@@ -47,11 +28,11 @@ void loadAllObjects()
     {
         ///Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox) is the function
         ///page 1:
-        &( RayJump::Block1= RayJump::Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
-        &( RayJump::Block2= RayJump::Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
-        &( RayJump::Block3= RayJump::Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
-        &( RayJump::Block4= RayJump::Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
-        &( RayJump::Block5= RayJump::Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
+        &( Block1= Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
+        &( Block2= Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
+        &( Block3= Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
+        &( Block4= Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
+        &( Block5= Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
         /// page 2:
         &RayJump::myStart,
         &RayJump::myFinish
@@ -61,7 +42,7 @@ void loadAllObjects()
 
     extraCheck();
 }
-void extraCheck()
+void RayJump::Loader::extraCheck()
 {
     for(int i=0;i<nrOfObjects;i++)
     {
@@ -82,18 +63,19 @@ void extraCheck()
         }
     }
 }
-
-class LevelSelect
+void RayJump::Loader::loadMap(const char levelName[])
 {
-    public:
-    void run()
+    RayJump::myMap.loadMap(levelName,"");
+}
+
+
+    void RayJump::LevelSelect::run()
     {
         draw();
     }
-    void draw()
+    void RayJump::LevelSelect::draw()
     {
         BeginDrawing();
         ClearBackground(BLUE);
         EndDrawing();
     }
-};
