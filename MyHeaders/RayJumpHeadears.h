@@ -1,6 +1,7 @@
 #ifndef RAYJUMP ///contains the whole header
 #define RAYJUMP
-
+#include "ExtendedRaylib.h"
+#include <cmath>
 #include <map>
 namespace RayJump
 {
@@ -142,6 +143,141 @@ public:
     void restart();
 };
 
+class Settings
+{
+public:
+    void static run();
+};
+class MainMenu
+{
+     TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
+     ButtonAligned playOn=ButtonAligned("Continue",ERay::getWindowSize(),50,40,30,BLACK,GREEN);
+     ButtonAligned lvlSelect=ButtonAligned("Level Select",ERay::getWindowSize(),50,50,30,BLACK,GREEN);
+     ButtonAligned lvlEditor=ButtonAligned("Level Editor",ERay::getWindowSize(),50,60,30,BLACK,GREEN);
+     ButtonAligned exit=ButtonAligned("Exit",ERay::getWindowSize(),50,70,30,BLACK,GREEN);
+     int keyboardSelected = 0;
+     KBD_Btn_Move kbdMove;
+public:
+    MainMenu();
+    void run();
+private:
+    void draw();
+};
+class Player
+{
+public:
+    /**  HORIZONTAL INFORMATION  **/
+    float xCoord,xVelocity=0,xMovement;
+    const float MAX_X_VELOCITY_PER_SECOND=220;
+    const float MAX_X_VELOCITY_PER_FRAME=MAX_X_VELOCITY_PER_SECOND/200;
+    const float X_SECONDS_UNTIL_MAX=0.5;
+    float const XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/200;
+    int XDirection=0;
+
+    /**  VERTICAL INFORMATION  **/
+    float yCoord,yVelocity=0,yMovement;
+    const float MAX_Y_VELOCITY_PER_SECOND=300;
+    const float MAX_Y_VELOCITY_PER_FRAME=MAX_Y_VELOCITY_PER_SECOND/200;
+    const float Y_SECONDS_UNTIL_MAX=0.2;
+    const float YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
+    bool isGrounded=false;
+
+    /**  JUMPING  **/
+    const float JUMP_HEIGHT=90;
+    /*Fizica: (https://fenomas.com/2016/07/game-jumping-physics/)
+    PE = mgh            // Potential energy at peak of jump
+    KE = mv²/2          // Kinetic energy at initial jump velocity v
+    mgh = mv²/2         // set them equal and solve for v
+    v² = 2gh => v=sqrt(2gh)*/
+    const float JUMP_VELOCITY=sqrt(JUMP_HEIGHT*YVelocityGain*2);
+
+    /**  DASHING  **/
+    int dashes=1;
+    bool isdashing=false;
+    long long dashTime=0;
+    const float dashXVal=2;
+    const float dashYVal=1.9;
+    const float dashXDiagVal=1.50;
+    const float dashYDiagVal=1.50;
+    const long long MAX_DASH_TIME=200; /// 0.1 sec (in milisec)
+
+    /**  WALL JUMP/CLING-ING  **/
+    const float WJ_MAX_DISTANCE=20; /// wall jump
+    int WJ_direction=0;
+    const float WC_MAX_DISTANCE=10; /// wall cling
+    bool isClinging=false;
+    float closeLeft=999,closeRight=999; /// distance to closest block
+
+    /**  OTHER USEFUL INFO  **/
+    float xFacing=1; /// for sprite rotation
+    Rectangle const hitbox={15,16,35,46};
+
+    /**  FUNCTIONS  **/
+    void checkInput();
+    void checkJump();
+    void checkCling();
+    void horizontalCling();
+    void checkVerticalCling();
+    void checkDash();
+    void move();
+    void exitDash();
+    void newMovement();
+    void calcMoveOy();
+    void calcMoveOx();
+    void addMovement();
+    void reset();
+    void presume();
+    Rectangle getPrevHitbox();
+    Rectangle getHitbox();
+    Directions getPrevDir();
+    Directions getDir();
+    void tryWallJump(Directions box);
+    void draw(int transparency);
+};
+
+class ObjectSelector
+{
+public:
+    int *lastOnPage;/// array
+    int *currentPage; /// pointer
+    int *currentObject; /// pointer
+    int pagesNr;
+    void draw(int transparency);
+    void run();
+    void buildLastOnPage();
+protected:
+    int getN();
+    float getX (int i);
+    float getY ();
+};
+
+class LevelEditor
+{
+    int *lastOnPage;
+    int MAX_PAGES;
+    FixedButton  *buttons;
+    int currentPage=0;
+    int currentObject=1;
+    int startX=0,startY=0;
+    bool isObjectShown=false;
+    Color areaColor=WHITE;
+    RayJump::Exit exit;
+    KBD_Btn_Move kbdMove;
+
+public:
+    LevelEditor();
+    void  run();
+    void PlaceBlocks();
+    Rectangle getBigRectangle();
+    void placeAll();
+    void  draw();
+    void draw_content(int transparency);
+    void drawLevel(int transparency);
+    void drawHeldObj(int transparency);
+    void drawSelector(int transparency);
+    void changeButton(int newPage);
+};
+
 /********************************************
 *
 *                 GLOBALS
@@ -157,8 +293,16 @@ public:
     Texture2D ASSET_CHARACTER;
     Texture2D ASSET_BLOCKS;
     Texture2D ASSET_SPECIAL;
+    Player myPlayer;
+    ObjectSelector objSel;
 
     std::map<int,int> UID_pairing;
 }
 
+#include "Settings.h"
+#include "Objects.h"
+#include "Loader.h"
+#include "Game.h"
+#include "Player.h"
+#include "LevelEditor.h"
 #endif

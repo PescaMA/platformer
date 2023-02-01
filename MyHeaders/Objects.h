@@ -1,9 +1,7 @@
 #ifndef OBJECTS
 #define OBJECTS
 
-#include "ExtendedRaylib.h"
-#include "Player.h"
-#include "RayJumpHeadears.h"
+
 #include <map>
 #include <utility> /// for pair
 #include <fstream> /// for accessing stored levels
@@ -149,21 +147,6 @@ class MapObj;
     {
         return Object::draw(x,y,transparency);
     }
-
-/***********************************************
-*
-* cross header
-*
-***********************************************/
-void Player::reset()
-{
-    RayJump::myStart.specialEffect();
-    xVelocity=yVelocity=0;
-    xFacing=1;
-    XDirection=0;
-    isdashing=false;
-    presume();
-}
 
     RayJump::Finish::Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox){}
     void RayJump::Finish::draw(int transparency)

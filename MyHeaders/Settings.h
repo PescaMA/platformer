@@ -1,4 +1,4 @@
-#include "ExtendedRaylib.h"
+
 
     RayJump::Exit::Exit()
     {
@@ -78,23 +78,14 @@
         EndDrawing();
     }
 
-class MainMenu
-{
-     TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
-     ButtonAligned playOn=ButtonAligned("Continue",ERay::getWindowSize(),50,40,30,BLACK,GREEN);
-     ButtonAligned lvlSelect=ButtonAligned("Level Select",ERay::getWindowSize(),50,50,30,BLACK,GREEN);
-     ButtonAligned lvlEditor=ButtonAligned("Level Editor",ERay::getWindowSize(),50,60,30,BLACK,GREEN);
-     ButtonAligned exit=ButtonAligned("Exit",ERay::getWindowSize(),50,70,30,BLACK,GREEN);
-     int keyboardSelected = 0;
-     KBD_Btn_Move kbdMove;
-public:
-    MainMenu()
+
+    RayJump::MainMenu::MainMenu()
     {
         Button *bList[]={&playOn,&lvlSelect,&lvlEditor,&exit};
         int n=sizeof(bList)/sizeof(bList[0]);
         kbdMove=KBD_Btn_Move(bList,n);
     }
-    void run()
+    void RayJump::MainMenu::run()
     {
         if(playOn.Lclicked())
         {
@@ -117,8 +108,7 @@ public:
         draw();
         kbdMove.run();
     }
-private:
-    void draw()
+    void RayJump::MainMenu::draw()
     {
         BeginDrawing();
         ClearBackground(YELLOW);
@@ -129,12 +119,7 @@ private:
         exit.draw();
         EndDrawing();
     }
-};
-class Settings
-{
-public:
-    void static run()
-    {
 
-    }
-};
+
+
+    void RayJump::Settings::run(){}

@@ -1,5 +1,4 @@
-#include "ExtendedRaylib.h"
-#include "RayJumpHeadears.h"
+
 #include <map>
 
     void RayJump::Loader::load()

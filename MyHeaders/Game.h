@@ -1,6 +1,3 @@
-#include "Objects.h"
-#include "ExtendedRaylib.h"
-#include "RayJumpHeadears.h"
 
     void RayJump::Game::commands()
     {

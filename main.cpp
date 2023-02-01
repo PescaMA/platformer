@@ -1,9 +1,7 @@
 #include <iostream>
 #include <string.h>
-#include "MyHeaders/Loader.h"
-#include "MyHeaders/Settings.h"
-#include "MyHeaders/Game.h"
-#include "MyHeaders/LevelEditor.h"
+#include "MyHeaders/RayJumpHeadears.h"
+
 
 void RayJump::Loader::mainloop()
 {

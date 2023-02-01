@@ -1,28 +1,15 @@
-#include "ExtendedRaylib.h"
-
 
 /// TO DO: make these classes readable by humanoid beings
 
-class ObjectSelector
-{
-public:
-    int *lastOnPage;/// array
-    int *currentPage; /// pointer
-    int *currentObject; /// pointer
-    int pagesNr;
-    /*ObjectSelector():pagesNr=0{}
-    ObjectSelector():pagesNr=
-    {
 
-    }*/
-    void draw(int transparency)
+    void RayJump::ObjectSelector::draw(int transparency)
     {
         for(int i=lastOnPage[*currentPage];i<lastOnPage[*currentPage+1];i++)
         {
             RayJump::AllObjects[i]->draw(getX(i),getY(),transparency);
         }
     }
-    void run()
+    void RayJump::ObjectSelector::run()
     {
         for(int i=lastOnPage[*currentPage];i<lastOnPage[*currentPage+1];i++)
         {
@@ -31,7 +18,7 @@ public:
                *currentObject=i;
         }
     }
-    void buildLastOnPage()
+    void RayJump::ObjectSelector::buildLastOnPage()
     {
         pagesNr=RayJump::AllObjects[RayJump::nrOfObjects-2]->page;
         lastOnPage=new int[pagesNr+1];
@@ -46,35 +33,22 @@ public:
             }
         lastOnPage[poz]=RayJump::nrOfObjects;
     }
-protected:
-    int getN()
+
+    int RayJump::ObjectSelector::getN()
     {
         return lastOnPage[*currentPage+1]-lastOnPage[*currentPage];
     }
-    float getX (int i)
+    float RayJump::ObjectSelector::getX (int i)
     {
         return RayJump::screenWidth/2-(getN()-1)*32-16+(i-lastOnPage[*currentPage])*64;
     }
-    float getY ()
+    float RayJump::ObjectSelector::getY ()
     {
         return RayJump::screenHeight-70;
     }
-} objSel;
-class LevelEditor
-{
-    int *lastOnPage;
-    int MAX_PAGES;
-    FixedButton  *buttons;
-    int currentPage=0;
-    int currentObject=1;
-    int startX=0,startY=0;
-    bool isObjectShown=false;
-    Color areaColor=WHITE;
-    RayJump::Exit exit;
-    KBD_Btn_Move kbdMove;
 
-public:
-    LevelEditor()
+
+    RayJump::LevelEditor::LevelEditor()
     {
 
         objSel.currentPage=&currentPage;
@@ -97,7 +71,7 @@ public:
         buttons[currentPage].normalColor.text=GREEN;
         buttons[currentPage].hoverColor.text=GREEN;
     }
-    void  run()
+    void RayJump::LevelEditor::run()
     {
         exit.run(this);
         if(exit.state == RayJump::Exit::States::starting)
@@ -125,7 +99,7 @@ public:
 
         draw();
     }
-    void PlaceBlocks()
+    void RayJump::LevelEditor::PlaceBlocks()
     {
         if(!isObjectShown)
             return;
@@ -183,7 +157,7 @@ public:
                 && RayJump::myMap.checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0}) )
             RayJump::myMap.deleteClick(GetMousePosition());
     }
-    Rectangle getBigRectangle()
+    Rectangle RayJump::LevelEditor::getBigRectangle()
     {
         RayJump::Object *obj= (RayJump::AllObjects[currentObject]);
         int mouseX=GetMouseX();
@@ -199,7 +173,7 @@ public:
         if(mouseY<startY)nrVerObjs++;
         return {(float)X,(float)Y,nrHorObjs*obj->hitbox.width,nrVerObjs*obj->hitbox.height};
     }
-    void placeAll()
+    void RayJump::LevelEditor::placeAll()
     {
         Rectangle rect=getBigRectangle();
         ///std::cout<<rect.x<<' '<<rect.y<<' '<<rect.width<<' '<<rect.height<<'\n';
@@ -215,13 +189,13 @@ public:
             }
 
     }
-    void  draw()
+    void RayJump::LevelEditor::draw()
     {
         BeginDrawing();
             draw_content(255);
         EndDrawing();
     }
-    void draw_content(int transparency)
+    void RayJump::LevelEditor::draw_content(int transparency)
     {
         Color T_BLUE=BLUE;   T_BLUE.a=transparency;
         ClearBackground(T_BLUE);
@@ -229,12 +203,12 @@ public:
         drawLevel(transparency);
         drawSelector(transparency);
     }
-    void drawLevel(int transparency)
+    void RayJump::LevelEditor::drawLevel(int transparency)
     {
         drawHeldObj(transparency);
         RayJump::myMap.drawMap(transparency);
     }
-    void drawHeldObj(int transparency)
+    void RayJump::LevelEditor::drawHeldObj(int transparency)
     {
         if(currentObject!=-1 && isObjectShown)
         {
@@ -256,7 +230,7 @@ public:
 
         }
     }
-    void drawSelector(int transparency)
+    void RayJump::LevelEditor::drawSelector(int transparency)
     {
         DrawRectangle(0,RayJump::screenHeight-114,RayJump::screenWidth,114,{237, 237, 157,(unsigned char)transparency});
         Color T_BLACK=BLACK; T_BLACK.a=transparency;
@@ -266,7 +240,7 @@ public:
             buttons[i].draw(transparency);
 
     }
-    void changeButton(int newPage)
+    void RayJump::LevelEditor::changeButton(int newPage)
     {
         buttons[currentPage].normalColor.text=BLACK;
         buttons[currentPage].hoverColor.text=YELLOW;
@@ -274,4 +248,4 @@ public:
         buttons[newPage].normalColor.text=GREEN;
         buttons[newPage].hoverColor.text=GREEN;
     }
-};
+

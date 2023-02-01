@@ -1,63 +1,4 @@
-#include "ExtendedRaylib.h"
-
 #include <cmath>
-
-class Player
-{
-/**********************************
-*
-*
-* V a r i a b l e s:
-*
-*
-***********************************/
-
-public:
-    /**  HORIZONTAL INFORMATION  **/
-    float xCoord,xVelocity=0,xMovement;
-    const float MAX_X_VELOCITY_PER_SECOND=220;
-    const float MAX_X_VELOCITY_PER_FRAME=MAX_X_VELOCITY_PER_SECOND/200;
-    const float X_SECONDS_UNTIL_MAX=0.5;
-    float const XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/200;
-    int XDirection=0;
-
-    /**  VERTICAL INFORMATION  **/
-    float yCoord,yVelocity=0,yMovement;
-    const float MAX_Y_VELOCITY_PER_SECOND=300;
-    const float MAX_Y_VELOCITY_PER_FRAME=MAX_Y_VELOCITY_PER_SECOND/200;
-    const float Y_SECONDS_UNTIL_MAX=0.2;
-    const float YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
-    bool isGrounded=false;
-
-    /**  JUMPING  **/
-    const float JUMP_HEIGHT=90;
-    /*Fizica: (https://fenomas.com/2016/07/game-jumping-physics/)
-    PE = mgh            // Potential energy at peak of jump
-    KE = mv²/2          // Kinetic energy at initial jump velocity v
-    mgh = mv²/2         // set them equal and solve for v
-    v² = 2gh => v=sqrt(2gh)*/
-    const float JUMP_VELOCITY=sqrt(JUMP_HEIGHT*YVelocityGain*2);
-
-    /**  DASHING  **/
-    int dashes=1;
-    bool isdashing=false;
-    long long dashTime=0;
-    const float dashXVal=2;
-    const float dashYVal=1.9;
-    const float dashXDiagVal=1.50;
-    const float dashYDiagVal=1.50;
-    const long long MAX_DASH_TIME=200; /// 0.1 sec (in milisec)
-
-    /**  WALL JUMP/CLING-ING  **/
-    const float WJ_MAX_DISTANCE=20; /// wall jump
-    int WJ_direction=0;
-    const float WC_MAX_DISTANCE=10; /// wall cling
-    bool isClinging=false;
-    float closeLeft=999,closeRight=999; /// distance to closest block
-
-    /**  OTHER USEFUL INFO  **/
-    float xFacing=1; /// for sprite rotation
-    Rectangle const hitbox={15,16,35,46};
 
 /**********************************
 *
@@ -67,7 +8,7 @@ public:
 *
 ***********************************/
 
-    void checkInput()
+    void RayJump::Player::checkInput()
     {
         if(isdashing)return;
         if(isGrounded)
@@ -83,7 +24,7 @@ public:
         if(IsKeyDown(KEY_LEFT)&& xVelocity<=0)
             XDirection=-1;
     }
-    void checkJump()
+    void RayJump::Player::checkJump()
     {
         if(!IsKeyDown(KEY_SPACE))
             return;
@@ -106,7 +47,7 @@ public:
                 xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME*0.9;
         }
     }
-    void checkCling()
+    void RayJump::Player::checkCling()
     {
         if(!IsKeyDown(KEY_X) || std::min(closeLeft,closeRight)>WC_MAX_DISTANCE)
         {
@@ -120,7 +61,7 @@ public:
         horizontalCling();   /// (forcefully) moves player closer to wall
         checkVerticalCling();///(voluntarily) moves player up / down wall
     }
-    void horizontalCling()
+    void RayJump::Player::horizontalCling()
     { /// moves player closer to wall
         if(closeLeft<closeRight)
         {
@@ -133,7 +74,7 @@ public:
             xCoord+=closeRight;
         }
     }
-    void checkVerticalCling()
+    void RayJump::Player::checkVerticalCling()
     {
         if(IsKeyDown(KEY_UP))
             yVelocity=-MAX_Y_VELOCITY_PER_FRAME*0.4;
@@ -141,7 +82,7 @@ public:
             yVelocity=MAX_Y_VELOCITY_PER_FRAME*0.6;
         /// moving down is faster than up but slower then falling
     }
-    void checkDash()
+    void RayJump::Player::checkDash()
     {
         if(!IsKeyDown(KEY_Z) || !dashes)
             return;
@@ -178,7 +119,7 @@ public:
 *
 *
 ***********************************/
-    void move()
+    void RayJump::Player::move()
     {
         exitDash();
 
@@ -193,7 +134,7 @@ public:
         addMovement();
     }
 
-    void exitDash()
+    void RayJump::Player::exitDash()
     {
         if(!isdashing)return;
         if(getTimeMS()-dashTime>MAX_DASH_TIME)
@@ -205,11 +146,11 @@ public:
 
     }
 
-    void newMovement()
+    void RayJump::Player::newMovement()
     {
         xMovement=yMovement=0;
     }
-    void calcMoveOy()
+    void RayJump::Player::calcMoveOy()
     {
         if(isClinging)return;
         yVelocity+=YVelocityGain;
@@ -217,7 +158,7 @@ public:
         if(yVelocity>MAX_Y_VELOCITY_PER_FRAME)
             yVelocity=MAX_Y_VELOCITY_PER_FRAME;
     }
-    void calcMoveOx()
+    void RayJump::Player::calcMoveOx()
     {
         if(isClinging)return;
         float oldXVelocity=xVelocity;
@@ -246,7 +187,7 @@ public:
                && ERay::abs(xVelocity)>ERay::abs(oldXVelocity))
                     xVelocity=oldXVelocity;
     }
-    void addMovement()
+    void RayJump::Player::addMovement()
     {
         xMovement+=xVelocity;
         xCoord+=xVelocity;
@@ -260,23 +201,33 @@ public:
 *
 *
 ***********************************/
-    void reset();
-    void presume()
+    void RayJump::Player::reset()
+{
+    RayJump::myStart.specialEffect();
+    xVelocity=yVelocity=0;
+    xFacing=1;
+    XDirection=0;
+    isdashing=false;
+    presume();
+}
+
+
+    void RayJump::Player::presume()
     {
         isGrounded=false;
         WJ_direction=0;
         closeLeft=closeRight=999;
     }
 
-    Rectangle getPrevHitbox()
+    Rectangle RayJump::Player::getPrevHitbox()
     {
         return {xCoord+hitbox.x-xMovement,yCoord+hitbox.y-yMovement,hitbox.width,hitbox.height};
     }
-    Rectangle getHitbox()
+    Rectangle RayJump::Player::getHitbox()
     {
         return {xCoord+hitbox.x,yCoord+hitbox.y,hitbox.width,hitbox.height};
     }
-    Directions getPrevDir()
+    Directions RayJump::Player::getPrevDir()
     {
         Directions rez;
         rez.left=xCoord+hitbox.x-xMovement;
@@ -285,7 +236,7 @@ public:
         rez.down=yCoord+hitbox.y-yMovement+hitbox.height;
         return rez;
     }
-    Directions getDir()
+    Directions RayJump::Player::getDir()
     {
         Directions rez;
         rez.left=xCoord+hitbox.x;
@@ -302,7 +253,7 @@ public:
 *
 *
 ***********************************/
-    void tryWallJump(Directions box)
+    void RayJump::Player::tryWallJump(Directions box)
     {
         Directions PDir=getDir();
         if(PDir.down-3<=box.up || box.down<=PDir.up-5)
@@ -319,7 +270,7 @@ public:
             closeLeft=std::min(closeLeft,std::max(PDir.left-box.right,0.0f));
         }
     }
-    void draw(int transparency)
+    void RayJump::Player::draw(int transparency)
     {
         Color white=WHITE;
         white.a=transparency;
@@ -329,5 +280,3 @@ public:
         if(!RayJump::hideHitbox)
             DrawRectangleLinesEx(getHitbox(),1,GREEN);
     }
-
-}myPlayer;
