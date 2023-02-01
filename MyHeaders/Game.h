@@ -17,7 +17,7 @@ public:
     }
     void run()
     {
-        if(myFinish.won==true)
+        if(RayJump::myFinish.won==true)
         {
             winScreen.run(this);
             return;
@@ -38,7 +38,7 @@ public:
             if(i%5==0)
             {
                 myPlayer.presume();
-                myMap.checkAllCollisions();
+                RayJump::myMap.checkAllCollisions();
             }
         }
         draw();
@@ -53,13 +53,13 @@ public:
     {
         Color T_BLUE=BLUE;   T_BLUE.a=transparency;
         ClearBackground(T_BLUE);
-        myMap.drawMap(transparency);
+        RayJump::myMap.drawMap(transparency);
         myPlayer.draw(transparency);
     }
     void restart()
     {
-        myFinish.won = false;
+        RayJump::myFinish.won = false;
         myPlayer.reset();
-        myMap.restartMap();
+        RayJump::myMap.restartMap();
     }
 };

@@ -6,7 +6,6 @@
 #include "MyHeaders/LevelEditor.h"
 
 char doing[21]="MainMenu";
-extern MapObj myMap;
 
 /**********************************
 *
@@ -37,7 +36,7 @@ void Loader::mainloop()
 }
 void Loader::loadMap(const char levelName[])
 {
-    myMap.loadMap(levelName,"");
+    RayJump::myMap.loadMap(levelName,"");
 }
 
 int main()

@@ -5,7 +5,6 @@ extern const int screenHeight;
 extern int nrOfObjects;
 extern RayJump::Object **RayJump::AllObjects;
 extern bool hideHitbox;
-extern Finish myFinish;
 
 /// TO DO: make these classes readable by humanoid beings
 
@@ -116,7 +115,7 @@ public:
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))
             hideHitbox=!hideHitbox;
         if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_S))
-            myMap.saveMap("Levels/Lvl_Editor.txt");
+            RayJump::myMap.saveMap("Levels/Lvl_Editor.txt");
 
         for(int i=0;i<MAX_PAGES;i++)
             if(buttons[i].Lclicked())
@@ -142,42 +141,42 @@ public:
         if(IsMouseButtonPressed(0))
         {
             areaColor=BLACK;
-            if(!myMap.checkAllCollisionsMouse())
+            if(!RayJump::myMap.checkAllCollisionsMouse())
             {
                 startX=GetMouseX()-obj->hitbox.x-obj->hitbox.width/2;
                 startY=GetMouseY()-obj->hitbox.y-obj->hitbox.height/2;
             }
             else
             {
-                std::pair<int,int> start=myMap.getCollisionMouse();
+                std::pair<int,int> start=RayJump::myMap.getCollisionMouse();
                 if(start.first>-9999)
                 {
                     startX=start.first;startY=start.second;
-                    myMap.deletePair(start);
+                    RayJump::myMap.deletePair(start);
                 }
                 else
                     areaColor=WHITE;
             }
-            if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
+            if(obj->UID == RayJump::myStart.UID || obj->UID == RayJump::myFinish.UID)
                     areaColor=WHITE;
         }
         if(IsMouseButtonDown(0) && !ERay::same_color(areaColor,WHITE))
         {
-            if(myMap.checkAllCollisionsE(getBigRectangle()))
+            if(RayJump::myMap.checkAllCollisionsE(getBigRectangle()))
                 areaColor=RED;
             else
                 areaColor=GREEN;
         }
         if(IsMouseButtonReleased(0))
         {
-            if(obj->UID == myStart.UID || obj->UID == myFinish.UID || ERay::same_color(areaColor,WHITE))
+            if(obj->UID == RayJump::myStart.UID || obj->UID == RayJump::myFinish.UID || ERay::same_color(areaColor,WHITE))
             {
-                if(!myMap.checkAllCollisionsE(obj->getHitbox(mouseX,mouseY)))
+                if(!RayJump::myMap.checkAllCollisionsE(obj->getHitbox(mouseX,mouseY)))
                 {
-                    if(obj->UID == myStart.UID)
-                        myStart.x=mouseX,myStart.y=mouseY;
-                    if(obj->UID == myFinish.UID)
-                        myFinish.x=mouseX,myFinish.y=mouseY;
+                    if(obj->UID == RayJump::myStart.UID)
+                        RayJump::myStart.x=mouseX,RayJump::myStart.y=mouseY;
+                    if(obj->UID == RayJump::myFinish.UID)
+                        RayJump::myFinish.x=mouseX,RayJump::myFinish.y=mouseY;
                 }
             }
             else
@@ -186,8 +185,8 @@ public:
         }
 
         if( (IsKeyDown(KEY_DELETE) || (IsKeyDown(KEY_LEFT_SHIFT) && IsMouseButtonDown(1)))
-                && myMap.checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0}) )
-            myMap.deleteClick(GetMousePosition());
+                && RayJump::myMap.checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0}) )
+            RayJump::myMap.deleteClick(GetMousePosition());
     }
     Rectangle getBigRectangle()
     {
@@ -209,7 +208,7 @@ public:
     {
         Rectangle rect=getBigRectangle();
         ///std::cout<<rect.x<<' '<<rect.y<<' '<<rect.width<<' '<<rect.height<<'\n';
-        if(myMap.checkAllCollisionsE(rect))
+        if(RayJump::myMap.checkAllCollisionsE(rect))
             return;
         int width=RayJump::AllObjects[currentObject]->hitbox.width;
         int height=RayJump::AllObjects[currentObject]->hitbox.height;
@@ -217,7 +216,7 @@ public:
             for(int j=0;height*j<rect.height;j++)
             {
                 std::pair<int,int> iPos={rect.x+i*width,rect.y+j*height};
-                myMap.currentMap[iPos]=currentObject;
+                RayJump::myMap.currentMap[iPos]=currentObject;
             }
 
     }
@@ -238,7 +237,7 @@ public:
     void drawLevel(int transparency)
     {
         drawHeldObj(transparency);
-        myMap.drawMap(transparency);
+        RayJump::myMap.drawMap(transparency);
     }
     void drawHeldObj(int transparency)
     {

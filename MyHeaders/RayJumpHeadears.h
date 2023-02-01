@@ -24,7 +24,7 @@ namespace RayJump
     Vector2 const virtual getImageSize();
     bool collision(int x,int y,Rectangle entity);
 };
-/*class Block : public Object
+class Block : public Object
 {
     public:
     Block(){}
@@ -42,8 +42,36 @@ class Start : public Object
     Vector2 const getImageSize();
     bool collision(Rectangle entity);
     void draw(int transparency=255);
-};*/
-
+};
+class Finish : public RayJump::Object
+{
+    public:
+    int x=100,y=0;
+    bool exists=false;
+    bool won=false;
+    Finish(){}
+    Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox);
+    void draw(int transparency);
+    bool collision(Rectangle entity);
+    void collisionEffect();
+};
+class MapObj
+{
+public:
+    std::string next_level_name; /// TO DO: finish implementing next_lvl
+    std::map <std::pair<int,int>,int> currentMap;
+    void saveMap(std::string fileName);
+    void loadMap(std::string fileName,std::string next_level_name);
+    void restartMap();
+    void drawMap(int transparency);
+    void checkAllCollisions();
+    bool checkAllCollisionsE(Rectangle entity);
+    bool checkAllCollisionsMouse();
+    std::pair<int,int> getCollisionE(Rectangle entity);
+    std::pair<int,int> getCollisionMouse();
+    void deletePair(std::pair<int,int> coord);
+    void deleteClick(Vector2 pos);
+};
 
 /********************************************
 *
@@ -53,8 +81,10 @@ class Start : public Object
 
     Object **AllObjects;
     int nrOfObjects;
-    ///Block Block1,Block2,Block3,Block4,Block5;
-    ///Start myStart;
+    Block Block1,Block2,Block3,Block4,Block5;
+    Start myStart;
+    Finish myFinish;
+    MapObj myMap;
     char doing[21];
     const int screenWidth=800;
     const int screenHeight=600;

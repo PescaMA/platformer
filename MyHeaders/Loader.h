@@ -41,20 +41,20 @@ public:
 
 void loadAllObjects()
 {
-    myStart=Start(0,2,ASSET_SPECIAL,0,{5,0,22,64});
-    myFinish=Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
+    RayJump::myStart=RayJump::Start(0,2,ASSET_SPECIAL,0,{5,0,22,64});
+    RayJump::myFinish=RayJump::Finish(1,2,ASSET_SPECIAL,32,{0,0,32,32});
      RayJump::Object static *AllObjectss[]=/// taking advantage of easier definition
     {
         ///Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox) is the function
         ///page 1:
-        &( Block1= Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
-        &( Block2= Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
-        &( Block3= Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
-        &( Block4= Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
-        &( Block5= Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
+        &( RayJump::Block1= RayJump::Block(10,1,ASSET_BLOCKS,0,{0,0,32,32})),
+        &( RayJump::Block2= RayJump::Block(11,1,ASSET_BLOCKS,32,{0,0,32,32})),
+        &( RayJump::Block3= RayJump::Block(12,1,ASSET_BLOCKS,64,{0,0,32,32})),
+        &( RayJump::Block4= RayJump::Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
+        &( RayJump::Block5= RayJump::Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
         /// page 2:
-        &myStart,
-        &myFinish
+        &RayJump::myStart,
+        &RayJump::myFinish
     };
     nrOfObjects=sizeof(AllObjectss)/sizeof(AllObjectss[0]);
     RayJump::AllObjects=AllObjectss;
