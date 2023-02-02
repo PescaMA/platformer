@@ -19,6 +19,59 @@ namespace RayJump
     std::map<int,int> UID_pairing;
 /****************************************************************************
 *
+*        Settings - Event Screens, Settings, Main Menu
+*
+****************************************************************************/
+    class Exit /// Generalized exit screen to main menu. Needs a parent in which to be used.
+    {
+        const float  X=screenWidth/8, Y=screenHeight/3.0f;
+        const float WIDTH=screenWidth*6/8.0f,HEIGHT=screenHeight/3.0f;
+        Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
+        Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
+        KBD_Btn_Move kbdMove;
+    public:
+        enum States {off, starting, going, returning, exiting};
+        States state = off;
+        /// we can communicate with parent directly through state
+
+        Exit();
+        template <class drawable> void run(drawable background);
+    };
+
+    class Win_Screen
+    {
+        TxtAligned message=TxtAligned("You won!",ERay::getWindowSize(),50,30,80,GREEN);
+        ButtonAligned restart=ButtonAligned("Restart",ERay::getWindowSize(),75,85,35,BLACK,RED);
+        KBD_Btn_Move kbdMove;
+        public:
+        Win_Screen();
+        template <class Game>
+        void run(Game game);
+        void draw();
+    };
+
+    class Settings
+    {
+    public:
+        void static run();
+    };
+    class MainMenu
+    {
+         TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
+         ButtonAligned playOn=ButtonAligned("Continue",ERay::getWindowSize(),50,40,30,BLACK,GREEN);
+         ButtonAligned lvlSelect=ButtonAligned("Level Select",ERay::getWindowSize(),50,50,30,BLACK,GREEN);
+         ButtonAligned lvlEditor=ButtonAligned("Level Editor",ERay::getWindowSize(),50,60,30,BLACK,GREEN);
+         ButtonAligned exit=ButtonAligned("Exit",ERay::getWindowSize(),50,70,30,BLACK,GREEN);
+         int keyboardSelected = 0;
+         KBD_Btn_Move kbdMove;
+    public:
+        MainMenu();
+        void run();
+    private:
+        void draw();
+    };
+/****************************************************************************
+*
 *       L O A D E R S - Loader, Level_Select
 *
 /***************************************************************************/
@@ -35,9 +88,11 @@ namespace RayJump
 
     class LevelSelect
     {
-        public:
+        Exit exit;
+    public:
         void run();
         void draw();
+        void draw_content(int transparency);
     };
 /****************************************************************************
 *
@@ -58,7 +113,7 @@ namespace RayJump
         Rectangle getHitbox(int x,int y);
         Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox);
         void virtual draw(int x,int y,int transparency=255);
-        void movePlayer(char const c[10],int x,int y); /// Had to declare elsewhere
+        void movePlayer(char const c[10],int x,int y);
         void virtual collisionEffect(int x,int y){}
         void virtual specialEffect(){}
         Vector2 const virtual getImageSize();
@@ -97,63 +152,6 @@ namespace RayJump
         void draw(int transparency);
         bool collision(Rectangle entity);
         void collisionEffect();
-    };
-
-/****************************************************************************
-*
-*        Settings - Event Screens, Settings, Main Menu
-*
-****************************************************************************/
-    class Exit
-    {
-        const float  X=RayJump::screenWidth/8, Y=RayJump::screenHeight/3.0f;
-        const float WIDTH=RayJump::screenWidth*6/8.0f,HEIGHT=RayJump::screenHeight/3.0f;
-        Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
-        Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
-
-    public:
-        KBD_Btn_Move kbdMove;
-        enum States {off, starting, going, returning, exiting};
-        States state = off;
-        Exit();
-        void run();
-        template <class drawable>
-        void run(drawable background);
-        bool leave();
-        bool stay();
-    };
-
-    class Win_Screen
-    {
-        TxtAligned message=TxtAligned("You won!",ERay::getWindowSize(),50,30,80,GREEN);
-        ButtonAligned restart=ButtonAligned("Restart",ERay::getWindowSize(),75,85,35,BLACK,RED);
-        KBD_Btn_Move kbdMove;
-        public:
-        Win_Screen();
-        template <class Game>
-        void run(Game game);
-        void draw();
-    };
-
-    class Settings
-    {
-    public:
-        void static run();
-    };
-    class MainMenu
-    {
-         TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
-         ButtonAligned playOn=ButtonAligned("Continue",ERay::getWindowSize(),50,40,30,BLACK,GREEN);
-         ButtonAligned lvlSelect=ButtonAligned("Level Select",ERay::getWindowSize(),50,50,30,BLACK,GREEN);
-         ButtonAligned lvlEditor=ButtonAligned("Level Editor",ERay::getWindowSize(),50,60,30,BLACK,GREEN);
-         ButtonAligned exit=ButtonAligned("Exit",ERay::getWindowSize(),50,70,30,BLACK,GREEN);
-         int keyboardSelected = 0;
-         KBD_Btn_Move kbdMove;
-    public:
-        MainMenu();
-        void run();
-    private:
-        void draw();
     };
 /****************************************************************************
 *

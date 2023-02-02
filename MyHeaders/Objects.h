@@ -167,11 +167,11 @@ void RayJump::Start::draw(int transparency)
 RayJump::Finish::Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox) {}
 void RayJump::Finish::draw(int transparency)
 {
-    RayJump::Object::draw(x,y,transparency);
+    Object::draw(x,y,transparency);
 }
 bool RayJump::Finish::collision(Rectangle entity)
 {
-    return RayJump::Object::collision(x,y,entity);
+    return Object::collision(x,y,entity);
 }
 void RayJump::Finish::collisionEffect()
 {

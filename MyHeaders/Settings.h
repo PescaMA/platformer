@@ -10,55 +10,48 @@ RayJump::Exit::Exit()
     int n=sizeof(all)/sizeof(all[0]);
     kbdMove=KBD_Btn_Move(all,2,false,1);
 }
-void RayJump::Exit::run()
-{
-    const char sure[]="Are you sure you want to quit?";
-
-    DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
-    DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
-    yes.draw();
-    no.draw();
-}
 template <class drawable>
 void RayJump::Exit::run(drawable background)
 {
+    /// if we want to return to parent or main menu we close exit menu
     if(state == returning || state == exiting)
         state = off;
+
+    /// After we signaled to parent we entered exit mode
     if(state == starting)
         state = going;
+
+    /// Moving to the exit screen
     if(state == off && IsKeyPressed(KEY_ESCAPE))
         state=starting,kbdMove.reset();
+
+    /// If we are in parent
     if(state == off)
         return;
+
+    /// Returning to parent
     if(state == going && (IsKeyPressed(KEY_ESCAPE) || no.Lclicked()))
         state=returning;
 
+    /// Going to Main
     if(state == going && yes.Lclicked())
     {
         state =exiting;
-        strcpy(RayJump::doing,"MainMenu");
+        strcpy(doing,"MainMenu");
     }
 
 
     kbdMove.run();
     const char sure[]="Are you sure you want to quit?";
     BeginDrawing();
-    background->draw_content(100);
 
-
+    background->draw_content(100); /// draw the parent's draw content
     DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
     DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
     yes.draw();
     no.draw();
+
     EndDrawing();
-}
-bool RayJump::Exit::leave()
-{
-    return yes.Lclicked();
-}
-bool RayJump::Exit::stay()
-{
-    return  no.Lclicked() ;
 }
 
 /*********************************************
@@ -105,20 +98,20 @@ void RayJump::MainMenu::run()
 {
     if(playOn.Lclicked())
     {
-        strcpy(RayJump::doing,"Game");
-        RayJump::Loader::loadMap("Levels/Lvl_1.txt");
+        strcpy(doing,"Game");
+        Loader::loadMap("Levels/Lvl_1.txt");
     }
     if(lvlSelect.Lclicked())
-        strcpy(RayJump::doing,"LevelSelect");
+        strcpy(doing,"LevelSelect");
     if(lvlEditor.Lclicked())
     {
-        strcpy(RayJump::doing,"LevelEditor");
-        RayJump::Loader::loadMap("Levels/Lvl_Editor.txt");
+        strcpy(doing,"LevelEditor");
+        Loader::loadMap("Levels/Lvl_Editor.txt");
     }
 
     if(exit.Lclicked())
-        strcpy(RayJump::doing,"Exiting");
-    if(strcmp(RayJump::doing,"MainMenu"))
+        strcpy(doing,"Exiting");
+    if(strcmp(doing,"MainMenu"))
         kbdMove.reset();
 
     draw();

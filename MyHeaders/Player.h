@@ -213,7 +213,7 @@ void RayJump::Player::addMovement()
 ***********************************/
 void RayJump::Player::reset()
 {
-    RayJump::myStart.specialEffect();
+    myStart.specialEffect();
     xVelocity=yVelocity=0;
     xFacing=1;
     XDirection=0;
@@ -286,7 +286,7 @@ void RayJump::Player::draw(int transparency)
     white.a=transparency;
     Rectangle rect=ERay::smart_paint(0,64,xFacing,1);
     Vector2 position= {xCoord,yCoord};
-    DrawTextureRec(RayJump::ASSET_CHARACTER,rect,position,white);
-    if(!RayJump::hideHitbox)
+    DrawTextureRec(ASSET_CHARACTER,rect,position,white);
+    if(!hideHitbox)
         DrawRectangleLinesEx(getHitbox(),1,GREEN);
 }

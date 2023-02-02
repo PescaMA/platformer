@@ -2,7 +2,6 @@
 #include <string.h>
 #include "MyHeaders/RayJumpHeadears.h"
 
-
 void RayJump::Loader::mainloop()
 {
     LevelEditor lvlEditor;

@@ -20,14 +20,15 @@ void RayJump::Loader::unload()
 {
     UnloadTexture(ASSET_CHARACTER);
     UnloadTexture(ASSET_BLOCKS);
+    UnloadTexture(ASSET_SPECIAL);
     CloseWindow();
 }
 
 void RayJump::Loader::loadAllObjects()
 {
-    RayJump::myStart=RayJump::Start(0,2,ASSET_SPECIAL,0, {5,0,22,64});
-    RayJump::myFinish=RayJump::Finish(1,2,ASSET_SPECIAL,32, {0,0,32,32});
-    RayJump::Object static *AllObjectss[]=/// taking advantage of easier definition
+    myStart=Start(0,2,ASSET_SPECIAL,0, {5,0,22,64});
+    myFinish=Finish(1,2,ASSET_SPECIAL,32, {0,0,32,32});
+    Object static *AllObjectss[]=/// taking advantage of easier definition
     {
         ///Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox) is the function
         ///page 1:
@@ -37,11 +38,11 @@ void RayJump::Loader::loadAllObjects()
         &( Block4= Block(13,1,ASSET_BLOCKS,96,{0,0,32,32})),
         &( Block5= Block(14,1,ASSET_BLOCKS,128,{0,0,32,32})),
         /// page 2:
-        &RayJump::myStart,
-        &RayJump::myFinish
+        &myStart,
+        &myFinish
     };
     nrOfObjects=sizeof(AllObjectss)/sizeof(AllObjectss[0]);
-    RayJump::AllObjects=AllObjectss;
+    AllObjects=AllObjectss;
 
     extraCheck();
 }
@@ -50,16 +51,16 @@ void RayJump::Loader::extraCheck()
     for(int i=0; i<nrOfObjects; i++)
     {
         /// makes sure UID is unique and also creats a map for them
-        if(UID_pairing.find(RayJump::AllObjects[i]->UID) == UID_pairing.end())
-            UID_pairing[RayJump::AllObjects[i]->UID]=i; /// building map for loading
+        if(UID_pairing.find(AllObjects[i]->UID) == UID_pairing.end())
+            UID_pairing[AllObjects[i]->UID]=i; /// building map for loading
         else
         {
             std::cout<<"\n\nERROR. REPETITIVE OBJECT UNIQUE ID.\n\n";
             strcpy(doing,"Exiting");
         }
 
-        /// makes sure pages are in ascending order
-        if(i && RayJump::AllObjects[i]->page < RayJump::AllObjects[i-1]->page)
+        /// makes sure pages are in ascending order. Useful for level editor
+        if(i && AllObjects[i]->page < AllObjects[i-1]->page)
         {
             std::cout<<"\n\nERROR. PAGES NOT IN ASCENDING ORDER.\n\n";
             strcpy(doing,"Exiting");
@@ -68,7 +69,7 @@ void RayJump::Loader::extraCheck()
 }
 void RayJump::Loader::loadMap(const char levelName[])
 {
-    RayJump::myMap.loadMap(levelName,"");
+    myMap.loadMap(levelName,"");
 }
 
 /*********************************************
@@ -79,11 +80,18 @@ void RayJump::Loader::loadMap(const char levelName[])
 
 void RayJump::LevelSelect::run()
 {
+    exit.run(this);
+    if(exit.state != Exit::States::off)
+        return;
     draw();
 }
 void RayJump::LevelSelect::draw()
 {
     BeginDrawing();
-    ClearBackground(BLUE);
+    draw_content(255);
     EndDrawing();
+}
+void RayJump::LevelSelect::draw_content(int transparency)
+{
+    ClearBackground(BLUE);
 }
