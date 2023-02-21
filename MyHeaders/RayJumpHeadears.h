@@ -3,13 +3,14 @@
 #include "ExtendedRaylib.h"
 #include <cmath>
 #include <map>
+#include <vector>
 namespace RayJump
 {
 /****************************************************************************
 *
 *      G L O B A L S - normal data types
 *
-/***************************************************************************/
+****************************************************************************/
     char doing[21]="MainMenu";
     const int screenWidth=800;
     const int screenHeight=600;
@@ -74,7 +75,7 @@ namespace RayJump
 *
 *       L O A D E R S - Loader, Level_Select
 *
-/***************************************************************************/
+****************************************************************************/
     class Loader
     {
     public:
@@ -98,7 +99,7 @@ namespace RayJump
 *
 *       O B J E C T S - Object, Block, Start, Finish; MapObj
 *
-/***************************************************************************/
+****************************************************************************/
     class Object
     {
         public:
@@ -108,9 +109,13 @@ namespace RayJump
         int UID;
         int page;
         Rectangle hitbox;
+
         Object(){}
         Directions getDir(int x,int y);
         Rectangle getHitbox(int x,int y);
+        Vector2 makeCentered(Vector2 coord);
+        float makeXCentered(float X);
+        float makeYCentered(float Y);
         Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox);
         void virtual draw(int x,int y,int transparency=255);
         void movePlayer(char const c[10],int x,int y);
@@ -179,11 +184,14 @@ namespace RayJump
         std::map <std::pair<int,int>,int> currentMap;
         void saveMap(std::string fileName);
         void loadMap(std::string fileName,std::string next_level_name);
+        int getUID(std::pair<int,int> coord);
         void restartMap();
         void drawMap(int transparency);
+        bool onlyUID(Rectangle rect, int UID);
         void checkAllCollisions();
         bool checkAllCollisionsE(Rectangle entity);
         bool checkAllCollisionsMouse();
+        std::vector<std::pair<int,int>> getAllCollisionsE(Rectangle entity);
         std::pair<int,int> getCollisionE(Rectangle entity);
         std::pair<int,int> getCollisionMouse();
         void deletePair(std::pair<int,int> coord);
@@ -271,16 +279,31 @@ namespace RayJump
 *        Level Editor - Obj Selector, Editor
 *
 ****************************************************************************/
+    class LE_Buttons
+    {
+    public:
+        FixedButton  *buttons;
+        KBD_Btn_Move kbdMove;
+        int pagesNr;
+        int *currentPage;
+
+        template<class a>
+        LE_Buttons(a obj);
+        void run();
+        void changeButton(int newPage);
+        void draw_content(int transparency);
+    };
     class ObjectSelector
     {
     public:
         int *lastOnPage;/// array
         int *currentPage; /// pointer
-        int *currentObject; /// pointer
-        int pagesNr;
-        void draw(int transparency);
+        int *currentObject;
+        bool *isObjSpecial;
+        template <class a>
+        ObjectSelector(a obj);
+        void draw_content(int transparency);
         void run();
-        void buildLastOnPage();
     protected:
         int getN();
         float getX (int i);
@@ -289,36 +312,41 @@ namespace RayJump
 
     class LevelEditor
     {
-        int *lastOnPage;
-        int MAX_PAGES;
-        FixedButton  *buttons;
-        int currentPage=0;
-        int currentObject=1;
         int startX=0,startY=0;
         bool isObjectShown=false;
         Color areaColor=WHITE;
         RayJump::Exit exit;
-        KBD_Btn_Move kbdMove;
-
+        ObjectSelector objSel;
+        LE_Buttons buttons;
+        enum States{selecting,holding,building};
+        States state;
     public:
+        int currentObject;
+        int currentPage;
+        bool isObjSpecial=false;
+
         LevelEditor();
         void  run();
         void PlaceBlocks();
+        void getPlaceStart();
         Rectangle getBigRectangle();
         void placeAll();
+        void setFillColor();
+        void deleteObj();
         void  draw();
         void draw_content(int transparency);
         void drawLevel(int transparency);
         void drawHeldObj(int transparency);
+        void drawBuildRect(int transparency);
         void drawSelector(int transparency);
-        void changeButton(int newPage);
+
     };
 
 /****************************************************************************
 *
 *        GLOBALS - from classes declared
 *
-/***************************************************************************/
+****************************************************************************/
 
     Object **AllObjects;
     Block Block1,Block2,Block3,Block4,Block5;
@@ -329,7 +357,6 @@ namespace RayJump
     Texture2D ASSET_BLOCKS;
     Texture2D ASSET_SPECIAL;
     Player myPlayer;
-    ObjectSelector objSel;
 }
 
 /// Definitions are found here:

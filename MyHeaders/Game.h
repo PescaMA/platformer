@@ -3,6 +3,7 @@
 *                   G A M E
 *
 **********************************************/
+#include <vector>
 void RayJump::Game::commands()
 {
     if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))
@@ -129,6 +130,26 @@ void RayJump::MapObj::restartMap()
 {
     /// great function so far
 }
+int RayJump::MapObj::getUID(std::pair<int,int> coord)
+{
+    if(currentMap.find(coord)!= currentMap.end())
+        return AllObjects[currentMap[coord]]->UID;
+    if(myStart.x == coord.first && myStart.y == coord.second)
+        return myStart.UID;
+    if(myFinish.x == coord.first && myFinish.y == coord.second)
+        return myFinish.UID;
+    return -9999;
+}
+bool RayJump::MapObj::onlyUID(Rectangle rect, int UID)
+{
+    std::vector <std::pair<int,int>> collisions;
+    collisions = getAllCollisionsE(rect);
+    for(int i=0;i<collisions.size();i++)
+        if(myMap.getUID(collisions[i]) != UID)
+            return false;
+
+    return true;
+}
 void RayJump::MapObj::drawMap(int transparency)
 {
     myStart.draw(transparency);
@@ -162,6 +183,18 @@ bool RayJump::MapObj::checkAllCollisionsE(Rectangle entity)
         if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
             return true;
     return false;
+}
+std::vector<std::pair<int,int>> RayJump::MapObj::getAllCollisionsE(Rectangle entity)
+{
+    std::vector <std::pair<int,int>> result;
+    if(myFinish.collision(entity))
+        result.push_back({myFinish.x,myFinish.y});
+    if(myStart.collision(entity))
+        result.push_back({myStart.x,myStart.y});
+    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+            result.push_back(it->first);
+    return result;
 }
 bool RayJump::MapObj::checkAllCollisionsMouse()
 {

@@ -40,14 +40,15 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1675354812 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1676876103 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	<map>
 
-1675357472 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1677014802 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+	<vector>
 
-1675351846 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1677014756 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
 
-1675355009 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+1676838844 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
 
 1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
 	"raylib.h"
@@ -58,13 +59,13 @@
 	<iostream>
 	<string.h>
 
-1675351846 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+1676389731 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
 	<map>
 	<utility>
 	<fstream>
 	<stdio.h>
 
-1675351846 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1676977183 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
 	"ExtendedRaylib.h"
 	"RayJumpHeadears.h"
 	<cmath>
@@ -79,7 +80,7 @@
 
 1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\game.cpp
 
-1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\leveleditor.cpp
+1676975619 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\leveleditor.cpp
 
 1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\loader.cpp
 
@@ -89,10 +90,11 @@
 
 1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\settings.cpp
 
-1675354756 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
+1677012220 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
 	"ExtendedRaylib.h"
 	<cmath>
 	<map>
+	<vector>
 	"Settings.h"
 	"Objects.h"
 	"Loader.h"

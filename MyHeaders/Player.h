@@ -10,6 +10,7 @@
 *
 ***********************************/
 
+/// + fix bug stopping in block when going left (near other hitbox?)
 void RayJump::Player::checkInput()
 {
     if(isdashing)

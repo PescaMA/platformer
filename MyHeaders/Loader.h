@@ -26,7 +26,7 @@ void RayJump::Loader::unload()
 
 void RayJump::Loader::loadAllObjects()
 {
-    myStart=Start(0,2,ASSET_SPECIAL,0, {5,0,22,64});
+    myStart=Start(0,2,ASSET_SPECIAL,0, {-4,0,40,64}); /// hitbox big for player to fit inside
     myFinish=Finish(1,2,ASSET_SPECIAL,32, {0,0,32,32});
     Object static *AllObjectss[]=/// taking advantage of easier definition
     {

@@ -8,7 +8,7 @@ RayJump::Exit::Exit()
 {
     Button *all[]= {&yes,&no};
     int n=sizeof(all)/sizeof(all[0]);
-    kbdMove=KBD_Btn_Move(all,2,false,1);
+    kbdMove=KBD_Btn_Move(all,n,false,1);
 }
 template <class drawable>
 void RayJump::Exit::run(drawable background)
@@ -17,11 +17,11 @@ void RayJump::Exit::run(drawable background)
     if(state == returning || state == exiting)
         state = off;
 
-    /// After we signaled to parent we entered exit mode
+    /// After we signal to parent we enter exit mode
     if(state == starting)
         state = going;
 
-    /// Moving to the exit screen
+    /// Starting exit screen
     if(state == off && IsKeyPressed(KEY_ESCAPE))
         state=starting,kbdMove.reset();
 
@@ -99,7 +99,8 @@ void RayJump::MainMenu::run()
     if(playOn.Lclicked())
     {
         strcpy(doing,"Game");
-        Loader::loadMap("Levels/Lvl_1.txt");
+        Loader::loadMap("Levels/Lvl_Editor.txt");
+        ///Loader::loadMap("Levels/Lvl_1.txt");
     }
     if(lvlSelect.Lclicked())
         strcpy(doing,"LevelSelect");
@@ -111,6 +112,7 @@ void RayJump::MainMenu::run()
 
     if(exit.Lclicked())
         strcpy(doing,"Exiting");
+    /// if we want to leave
     if(strcmp(doing,"MainMenu"))
         kbdMove.reset();
 

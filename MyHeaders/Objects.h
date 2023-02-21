@@ -8,6 +8,16 @@
 *               O B J E C T
 *
 **********************************************/
+
+/// considering something like http://cplusplus.bordoon.com/namedArrayElements.html
+RayJump::Object::Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox)
+{
+    this->page=page;
+    this->UID=UID;
+    this->image=image;
+    this->imageX=imageX;
+    this->hitbox=hitbox;
+}
 Directions RayJump::Object::getDir(int x,int y)
 {
     Directions rez;
@@ -17,16 +27,25 @@ Directions RayJump::Object::getDir(int x,int y)
     rez.right=x+hitbox.x+hitbox.width;
     return rez;
 }
+Vector2 RayJump::Object::makeCentered(Vector2 coord)
+{
+    return {makeXCentered(coord.x),makeYCentered(coord.y)};
+}
+float RayJump::Object::makeXCentered(float X)
+{
+    return X-hitbox.x-hitbox.width/2;
+}
+float RayJump::Object::makeYCentered(float Y)
+{
+    return Y-hitbox.x-hitbox.width/2;
+}
 Rectangle RayJump::Object::getHitbox(int x,int y)
 {
     return {x+hitbox.x,y+hitbox.y,hitbox.width,hitbox.height};
 }
-RayJump::Object::Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):page(page)
-{
-    this->UID=UID;
-    this->image=image;
-    this->imageX=imageX;
-    this->hitbox=hitbox;
+Vector2 const RayJump::Object::getImageSize()
+{ /// a virtual function. most common size is 32x32. Only hight should change.
+    return {32,32};
 }
 void RayJump::Object::draw(int x,int y,int transparency)
 {
@@ -42,19 +61,15 @@ void RayJump::Object::draw(int x,int y,int transparency)
     }
 
 }
-Vector2 const RayJump::Object::getImageSize()
-{
-    return {32,32};
-}
+
 bool RayJump::Object::collision(int x,int y,Rectangle entity)
 {
-    if(CheckCollisionRecs(entity,this->getHitbox(x,y)))
-        return true;
-    return false;
+    return CheckCollisionRecs(entity,this->getHitbox(x,y));
 }
+
+/// Considering changing below function (too complex)
 void RayJump::Object::movePlayer(char const c[10],int x,int y)
 {
-    /// needs to access the map to check if moving the player to a certain position creates a collision
     Directions playerDir=myPlayer.getPrevDir();
     Directions objDir=getDir(x,y);
     float moveUp    = objDir.up - myPlayer.hitbox.y - myPlayer.hitbox.height;
