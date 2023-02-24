@@ -10,11 +10,8 @@
 *
 ***********************************/
 
-/// + fix bug stopping in block when going left (near other hitbox?)
 void RayJump::Player::checkInput()
 {
-    if(isdashing)
-        return;
     if(isGrounded)
         dashes=1;
 
@@ -41,20 +38,30 @@ void RayJump::Player::checkJump()
     if(WJ_direction && IsKeyPressed(KEY_SPACE))
     {
         /// wall jump
-        yVelocity=-JUMP_VELOCITY*0.8;
+        if(isClinging)
+            jumpTime = getTimeMS();
 
         /// horizontal distance is bigger if a directional key is pressed
         /// because that's how it works in Celeste
-
         if(IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_RIGHT))
-            xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME;
+        {
+            xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME*1.2;
+            yVelocity=-JUMP_VELOCITY*0.6;
+        }
+
         else
+        {
             xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME*0.9;
+            yVelocity=-JUMP_VELOCITY*0.75;
+        }
+
     }
 }
 void RayJump::Player::checkCling()
 {
-    if(!IsKeyDown(KEY_X) || std::min(closeLeft,closeRight)>WC_MAX_DISTANCE)
+    if(!IsKeyDown(KEY_X)
+        || std::min(closeLeft,closeRight)>WC_MAX_DISTANCE
+        || getTimeMS() - jumpTime < MAX_JUMP_TIME)
     {
         isClinging=false;
         return;
@@ -83,9 +90,9 @@ void RayJump::Player::horizontalCling()
 void RayJump::Player::checkVerticalCling()
 {
     if(IsKeyDown(KEY_UP))
-        yVelocity=-MAX_Y_VELOCITY_PER_FRAME*0.4;
+        yVelocity=-MAX_Y_VELOCITY_PER_FRAME*0.5;
     if(IsKeyDown(KEY_DOWN))
-        yVelocity=MAX_Y_VELOCITY_PER_FRAME*0.6;
+        yVelocity=MAX_Y_VELOCITY_PER_FRAME*0.7;
     /// moving down is faster than up but slower then falling
 }
 void RayJump::Player::checkDash()
@@ -166,22 +173,23 @@ void RayJump::Player::calcMoveOy()
     if(isClinging)
         return;
     yVelocity+=YVelocityGain;
-    ///std::cout<<yVelocity<<'\n';
     if(yVelocity>MAX_Y_VELOCITY_PER_FRAME)
         yVelocity=MAX_Y_VELOCITY_PER_FRAME;
 }
 void RayJump::Player::calcMoveOx()
-{
+{/// weird func?
     if(isClinging)
         return;
     float oldXVelocity=xVelocity;
     xVelocity+=XVelocityGain*XDirection;
+    if(ERay::abs(xVelocity)>MAX_X_VELOCITY_PER_FRAME)
+        xVelocity=oldXVelocity*0.999;
     if(!XDirection)
     {
-        if(xVelocity>XVelocityGain*5)
-            xVelocity-=XVelocityGain*5;
-        else if(xVelocity<-XVelocityGain*5)
-            xVelocity+=XVelocityGain*5;
+        if(xVelocity>XVelocityGain*3)
+            xVelocity-=XVelocityGain*3;
+        else if(xVelocity<-XVelocityGain*3)
+            xVelocity+=XVelocityGain*3;
         else
             xVelocity=0;
     }
@@ -189,14 +197,11 @@ void RayJump::Player::calcMoveOx()
     {
         if(xVelocity>MAX_X_VELOCITY_PER_FRAME)
             xVelocity=std::max(MAX_X_VELOCITY_PER_FRAME,
-                               xVelocity*0.99f);
+                               xVelocity*0.98f);
         if(xVelocity< -MAX_X_VELOCITY_PER_FRAME)
             xVelocity=std::min(-MAX_X_VELOCITY_PER_FRAME,
-                               xVelocity*0.99f);
+                               xVelocity*0.98f);
     }
-    else if(ERay::abs(xVelocity)>MAX_X_VELOCITY_PER_FRAME
-            && ERay::abs(xVelocity)>ERay::abs(oldXVelocity))
-        xVelocity=oldXVelocity;
 }
 void RayJump::Player::addMovement()
 {
@@ -267,15 +272,15 @@ Directions RayJump::Player::getDir()
 void RayJump::Player::tryWallJump(Directions box)
 {
     Directions PDir=getDir();
-    if(PDir.down-3<=box.up || box.down<=PDir.up-5)
-        return;
-    if(box.left-PDir.right<=WJ_MAX_DISTANCE && box.left-PDir.right>=-3)
+    if(PDir.down-10<=box.up || box.down<=PDir.up+1)
+        return; /// if we arent close to the box on the y axis
+    if(box.left-PDir.right<=WJ_MAX_DISTANCE && box.left-PDir.right>=-1)
     {
         WJ_direction=-1;
         closeRight=std::min(closeRight,std::max(box.left-PDir.right,0.0f));
     }
 
-    if(PDir.left-box.right<=WJ_MAX_DISTANCE && PDir.left-box.right>=-3)
+    if(PDir.left-box.right<=WJ_MAX_DISTANCE && PDir.left-box.right>=-1)
     {
         WJ_direction=1;
         closeLeft=std::min(closeLeft,std::max(PDir.left-box.right,0.0f));

@@ -18,6 +18,11 @@ namespace RayJump
     int hideHitbox=false;
     int nrOfObjects;
     std::map<int,int> UID_pairing;
+    int const gameTicks = 200;
+    Texture2D ASSET_CHARACTER;
+    Texture2D ASSET_BLOCKS;
+    Texture2D ASSET_SPECIAL;
+    Texture2D ASSET_BACKGROUND;
 /****************************************************************************
 *
 *        Settings - Event Screens, Settings, Main Menu
@@ -104,6 +109,7 @@ namespace RayJump
     {
         public:
         bool canWJ=false;
+        bool isSolid = true;
         Texture2D image;
         int imageX;
         int UID;
@@ -168,7 +174,7 @@ namespace RayJump
     {
         Exit exit;
         Win_Screen winScreen;
-        GameTickRate gameTick=GameTickRate(200);
+        GameTickRate gameTick=GameTickRate(gameTicks);
     public:
         void commands();
         void run();
@@ -188,11 +194,11 @@ namespace RayJump
         void restartMap();
         void drawMap(int transparency);
         bool onlyUID(Rectangle rect, int UID);
-        void checkAllCollisions();
+        void checkPlayerCollisions();
         bool checkAllCollisionsE(Rectangle entity);
         bool checkAllCollisionsMouse();
+        bool checkSolidCollisionsE(Rectangle entity);
         std::vector<std::pair<int,int>> getAllCollisionsE(Rectangle entity);
-        std::pair<int,int> getCollisionE(Rectangle entity);
         std::pair<int,int> getCollisionMouse();
         void deletePair(std::pair<int,int> coord);
         void deleteClick(Vector2 pos);
@@ -209,17 +215,17 @@ namespace RayJump
         /**  HORIZONTAL INFORMATION  **/
         float xCoord,xVelocity=0,xMovement;
         const float MAX_X_VELOCITY_PER_SECOND=220;
-        const float MAX_X_VELOCITY_PER_FRAME=MAX_X_VELOCITY_PER_SECOND/200;
+        const float MAX_X_VELOCITY_PER_FRAME=MAX_X_VELOCITY_PER_SECOND/gameTicks;
         const float X_SECONDS_UNTIL_MAX=0.5;
-        float const XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/200;
+        const float XVelocityGain=MAX_X_VELOCITY_PER_FRAME/X_SECONDS_UNTIL_MAX/gameTicks;
         int XDirection=0;
 
         /**  VERTICAL INFORMATION  **/
         float yCoord,yVelocity=0,yMovement;
         const float MAX_Y_VELOCITY_PER_SECOND=300;
-        const float MAX_Y_VELOCITY_PER_FRAME=MAX_Y_VELOCITY_PER_SECOND/200;
+        const float MAX_Y_VELOCITY_PER_FRAME=MAX_Y_VELOCITY_PER_SECOND/gameTicks;
         const float Y_SECONDS_UNTIL_MAX=0.2;
-        const float YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/200;/// 200 = gametick
+        const float YVelocityGain=MAX_Y_VELOCITY_PER_FRAME/Y_SECONDS_UNTIL_MAX/gameTicks;/// 200 = gametick
         bool isGrounded=false;
 
         /**  JUMPING  **/
@@ -230,6 +236,8 @@ namespace RayJump
         mgh = mv²/2         // set them equal and solve for v
         v² = 2gh => v=sqrt(2gh)*/
         const float JUMP_VELOCITY=sqrt(JUMP_HEIGHT*YVelocityGain*2);
+        long long jumpTime;
+        const long long MAX_JUMP_TIME=300; ///(in milisec)
 
         /**  DASHING  **/
         int dashes=1;
@@ -239,12 +247,12 @@ namespace RayJump
         const float dashYVal=1.9;
         const float dashXDiagVal=1.50;
         const float dashYDiagVal=1.50;
-        const long long MAX_DASH_TIME=200; /// 0.1 sec (in milisec)
+        const int MAX_DASH_TIME=200; /// (in milisec)
 
         /**  WALL JUMP/CLING-ING  **/
         const float WJ_MAX_DISTANCE=20; /// wall jump
         int WJ_direction=0;
-        const float WC_MAX_DISTANCE=10; /// wall cling
+        const float WC_MAX_DISTANCE=4; /// wall cling
         bool isClinging=false;
         float closeLeft=999,closeRight=999; /// distance to closest block
 
@@ -353,9 +361,6 @@ namespace RayJump
     Start myStart;
     Finish myFinish;
     MapObj myMap;
-    Texture2D ASSET_CHARACTER;
-    Texture2D ASSET_BLOCKS;
-    Texture2D ASSET_SPECIAL;
     Player myPlayer;
 }
 

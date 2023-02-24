@@ -293,9 +293,11 @@ void RayJump::LevelEditor::draw()
 
 void RayJump::LevelEditor::draw_content(int transparency)
 {
-    Color T_BLUE=BLUE;
-    T_BLUE.a=transparency;
-    ClearBackground(T_BLUE);
+    ClearBackground(BLUE);
+
+    Rectangle BKGdrawnPart = { 0.0f, 0.0f, 256.0f, 256.0f };
+    Rectangle BKGdestination = {0,0,screenWidth,screenHeight};
+    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, BKGdestination);
 
     drawLevel(transparency);
     drawSelector(transparency);

@@ -29,27 +29,31 @@ void RayJump::Game::run()
     myPlayer.checkInput();
 
     for(int i=gameTick.getFrames()-1; i>=0; i--)
-    {///skipping some collision checks for very high frame rates. End in 0 so modulo works at least once.
+    {///skipping some collision checks for very high frame rates. End with 0 so modulo 5 works at least once.
         myPlayer.move();
         if(i%5==0)
         {
             myPlayer.presume();
-            myMap.checkAllCollisions();
+            myMap.checkPlayerCollisions();
         }
     }
     draw();
 }
 void RayJump::Game::draw()
 {
+
     BeginDrawing();
     draw_content(255);
     EndDrawing();
 }
 void RayJump::Game::draw_content(int transparency)
 {
-    Color T_BLUE=BLUE;
-    T_BLUE.a=transparency;
-    ClearBackground(T_BLUE);
+    ClearBackground(BLUE);
+
+    Rectangle BKGdrawnPart = { 0.0f, 0.0f, 256.0f, 256.0f };
+    Rectangle BKGdestination = {0,0,screenWidth,screenHeight};
+    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, BKGdestination);
+
     myMap.drawMap(transparency);
     myPlayer.draw(transparency);
 }
@@ -144,12 +148,27 @@ bool RayJump::MapObj::onlyUID(Rectangle rect, int UID)
 {
     std::vector <std::pair<int,int>> collisions;
     collisions = getAllCollisionsE(rect);
-    for(int i=0;i<collisions.size();i++)
+    for(int unsigned i=0;i<collisions.size();i++)
         if(myMap.getUID(collisions[i]) != UID)
             return false;
 
     return true;
 }
+void RayJump::MapObj::deletePair(std::pair<int,int> coord)
+{
+    currentMap.erase(currentMap.find(coord));
+}
+void RayJump::MapObj::deleteClick(Vector2 pos)
+{
+    Rectangle entity= {pos.x,pos.y,1,1};
+    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+        {
+            currentMap.erase(it);
+            return;
+        }
+}
+
 void RayJump::MapObj::drawMap(int transparency)
 {
     myStart.draw(transparency);
@@ -157,7 +176,39 @@ void RayJump::MapObj::drawMap(int transparency)
     for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
         AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
 }
-void RayJump::MapObj::checkAllCollisions()
+
+bool RayJump::MapObj::checkAllCollisionsE(Rectangle entity)
+{
+    if(myFinish.collision(entity))
+        return true;
+    if(myStart.collision(entity))
+        return true;
+    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+            return true;
+    return false;
+}
+bool RayJump::MapObj::checkSolidCollisionsE(Rectangle entity)
+{
+    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+            if(AllObjects[it->second]->isSolid)
+                return true;
+    return false;
+}
+std::vector<std::pair<int,int>> RayJump::MapObj::getAllCollisionsE(Rectangle entity)
+{
+    std::vector <std::pair<int,int>> result;
+    if(myFinish.collision(entity))
+        result.push_back({myFinish.x,myFinish.y});
+    if(myStart.collision(entity))
+        result.push_back({myStart.x,myStart.y});
+    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+            result.push_back(it->first);
+    return result;
+}
+void RayJump::MapObj::checkPlayerCollisions()
 {
     if(myFinish.collision(myPlayer.getHitbox()))
         myFinish.collisionEffect();
@@ -173,55 +224,16 @@ void RayJump::MapObj::checkAllCollisions()
 
     myPlayer.newMovement();
 }
-bool RayJump::MapObj::checkAllCollisionsE(Rectangle entity)
-{
-    if(myFinish.collision(entity))
-        return true;
-    if(myStart.collision(entity))
-        return true;
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            return true;
-    return false;
-}
-std::vector<std::pair<int,int>> RayJump::MapObj::getAllCollisionsE(Rectangle entity)
-{
-    std::vector <std::pair<int,int>> result;
-    if(myFinish.collision(entity))
-        result.push_back({myFinish.x,myFinish.y});
-    if(myStart.collision(entity))
-        result.push_back({myStart.x,myStart.y});
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            result.push_back(it->first);
-    return result;
-}
 bool RayJump::MapObj::checkAllCollisionsMouse()
 {
     return checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0});
 }
-std::pair<int,int> RayJump::MapObj::getCollisionE(Rectangle entity)
-{
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            return {(it->first).first, (it->first).second};
-    return {-999999,-999999};
-}
 std::pair<int,int> RayJump::MapObj::getCollisionMouse()
 {
-    return getCollisionE({(float)GetMouseX(),(float)GetMouseY(),0,0});
-}
-void RayJump::MapObj::deletePair(std::pair<int,int> coord)
-{
-    currentMap.erase(currentMap.find(coord));
-}
-void RayJump::MapObj::deleteClick(Vector2 pos)
-{
-    Rectangle entity= {pos.x,pos.y,1,1};
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-        {
-            currentMap.erase(it);
-            return;
-        }
+    std::vector<std::pair<int,int>> collisions;
+    collisions = getAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0});
+    if(collisions.size()>0)
+        return collisions[0];
+    else
+        return {-99999,-99999};
 }

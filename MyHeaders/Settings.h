@@ -17,7 +17,7 @@ void RayJump::Exit::run(drawable background)
     if(state == returning || state == exiting)
         state = off;
 
-    /// After we signal to parent we enter exit mode
+    /// After we signaled to parent we enter exit mode
     if(state == starting)
         state = going;
 
@@ -45,7 +45,7 @@ void RayJump::Exit::run(drawable background)
     const char sure[]="Are you sure you want to quit?";
     BeginDrawing();
 
-    background->draw_content(100); /// draw the parent's draw content
+    background->draw_content(100); /// draw the parent's draw content as blurred background
     DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
     DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
     yes.draw();
@@ -112,6 +112,7 @@ void RayJump::MainMenu::run()
 
     if(exit.Lclicked())
         strcpy(doing,"Exiting");
+
     /// if we want to leave
     if(strcmp(doing,"MainMenu"))
         kbdMove.reset();
@@ -136,4 +137,5 @@ void RayJump::MainMenu::draw()
 *                SETTINGS
 *
 **********************************************/
+/// phenomenal
 void RayJump::Settings::run() {}

@@ -14,6 +14,7 @@ void RayJump::Loader::load()
     ASSET_CHARACTER=LoadTexture("Images/character.png");
     ASSET_BLOCKS=LoadTexture("Images/blocks.png");
     ASSET_SPECIAL=LoadTexture("Images/special.png");
+    ASSET_BACKGROUND= LoadTexture("Images/background.png");
     loadAllObjects();
 }
 void RayJump::Loader::unload()
@@ -21,6 +22,7 @@ void RayJump::Loader::unload()
     UnloadTexture(ASSET_CHARACTER);
     UnloadTexture(ASSET_BLOCKS);
     UnloadTexture(ASSET_SPECIAL);
+    UnloadTexture(ASSET_BACKGROUND);
     CloseWindow();
 }
 

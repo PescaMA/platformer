@@ -86,8 +86,10 @@ void RayJump::Object::movePlayer(char const c[10],int x,int y)
 
     if(!strcmp(c,"left"))
     {
+        Rectangle playerHitbox = myPlayer.getHitbox();
+        playerHitbox.y=myPlayer.hitbox.y + moveUp;
         if(objDir.up-playerDir.down>-10
-                && !myMap.checkAllCollisionsE({myPlayer.xCoord,moveUp,myPlayer.getHitbox().width,myPlayer.getHitbox().height}))
+                && !myMap.checkSolidCollisionsE(playerHitbox))
         {
             return movePlayer("up",x,y);
         }
@@ -98,8 +100,10 @@ void RayJump::Object::movePlayer(char const c[10],int x,int y)
     }
     if(!strcmp(c,"right"))
     {
+        Rectangle playerHitbox = myPlayer.getHitbox();
+        playerHitbox.y= myPlayer.hitbox.y + moveUp;
         if(objDir.up-playerDir.down>-10
-                && !myMap.checkAllCollisionsE({myPlayer.xCoord,moveUp,myPlayer.getHitbox().width,myPlayer.getHitbox().height}))
+                && !myMap.checkSolidCollisionsE(playerHitbox))
         {
             return movePlayer("up",x,y);
         }
@@ -155,7 +159,8 @@ void RayJump::Block::collisionEffect(int x,int y)
 *               S T A R T
 *
 **********************************************/
-RayJump::Start::Start(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox) {}
+RayJump::Start::Start(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox)
+{isSolid = false;}
 void RayJump::Start::specialEffect()
 {
     myPlayer.xCoord=x+16-myPlayer.hitbox.x-myPlayer.hitbox.width/2;
@@ -179,7 +184,8 @@ void RayJump::Start::draw(int transparency)
 *               F I N I S H
 *
 **********************************************/
-RayJump::Finish::Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox) {}
+RayJump::Finish::Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox)
+{ isSolid = false;}
 void RayJump::Finish::draw(int transparency)
 {
     Object::draw(x,y,transparency);

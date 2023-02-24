@@ -85,6 +85,12 @@ namespace ERay
         if(coord<oldCoord)
             coord=oldCoord;
     }
+    void drawTextureDest(Texture2D asset, Rectangle drawnPart, Rectangle destination)
+    {
+        /// not entirely sure what all the parameters mean but seems to work.
+        NPatchInfo ninePatchInfo = { drawnPart, 0, 0, 0, 0, NPATCH_NINE_PATCH };
+        DrawTextureNPatch(asset, ninePatchInfo, destination, {0,0}, 0.0f, WHITE);
+    }
 
 };
 struct Txt
