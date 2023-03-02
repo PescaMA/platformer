@@ -7,7 +7,7 @@
 *
 **********************************************/
 
-/// bug cant place start/finish near itself
+/// bug start and finish resetting positions.
 
 template <class a>
 RayJump::ObjectSelector::ObjectSelector(a obj)
@@ -15,6 +15,7 @@ RayJump::ObjectSelector::ObjectSelector(a obj)
     currentPage=&obj->currentPage;
     currentObject=&obj->currentObject;
     isObjSpecial=&obj->isObjSpecial;
+    extraInfo = &obj->extraInfo;
     *currentObject = -1;
 
     int pagesNr=AllObjects[nrOfObjects-1]->page;
@@ -37,9 +38,13 @@ void RayJump::ObjectSelector::run()
         Rectangle rec= {getX(i),getY(),32,AllObjects[i]->hitbox.height};
         if(IsMouseButtonPressed(0) && CheckCollisionPointRec(GetMousePosition(),rec))
         {
+
             *currentObject=i;
 
             Object *obj = AllObjects[*currentObject];
+
+            *extraInfo= new int[obj->nrExtra];
+
             if(obj->UID == myStart.UID || obj->UID == myFinish.UID)
                 *isObjSpecial=true;
             else
@@ -54,18 +59,18 @@ int RayJump::ObjectSelector::getN()
 }
 float RayJump::ObjectSelector::getX (int i)
 { /// centers N objects with width 32 and space 32 between and calculates current pos.
-    return screenWidth/2-16-(getN()-1)*32+(i-lastOnPage[*currentPage])*64;
+    return screenInfo.width/2-16-(getN()-1)*32+(i-lastOnPage[*currentPage])*64;
 }
 float RayJump::ObjectSelector::getY ()
 {
-    return screenHeight-70;
+    return screenInfo.height-70;
 }
 
 void RayJump::ObjectSelector::draw_content(int transparency)
 {
     for(int i=lastOnPage[*currentPage]; i<lastOnPage[*currentPage+1]; i++)
     {
-        AllObjects[i]->draw(getX(i),getY(),transparency);
+        AllObjects[i]->draw(Object::makeExtra(getX(i),getY()),transparency);
     }
 }
 
@@ -86,8 +91,8 @@ RayJump::LE_Buttons::LE_Buttons(a obj)
     for(int i=0; i<pagesNr; i++)
     {
         pointerArray[i]=&(buttons[i]);
-        int pos=screenWidth/2-(pagesNr-1)*24-15+i*48;
-        buttons[i]=FixedButton(TextFormat("%i",i+1),pos,screenHeight-110,30,30,28,BLACK,YELLOW);
+        int pos=screenInfo.width/2-(pagesNr-1)*24-15+i*48;
+        buttons[i]=FixedButton(TextFormat("%i",i+1),pos,screenInfo.height-110,30,30,28,BLACK,YELLOW);
     }
     kbdMove=KBD_Btn_Move(pointerArray,pagesNr,false);
 
@@ -98,7 +103,12 @@ RayJump::LE_Buttons::LE_Buttons(a obj)
 void RayJump::LE_Buttons::run()
 {
     kbdMove.run();
-
+    for(int i=0; i<pagesNr; i++)
+    {
+        int pos=screenInfo.width/2-(pagesNr-1)*24-15+i*48;
+        buttons[i].rect.x = pos;
+        buttons[i].rect.y = screenInfo.height - 110;
+    }
     for(int i=0; i<pagesNr; i++)
         if(buttons[i].Lclicked())
             changeButton(i);
@@ -145,7 +155,7 @@ void RayJump::LevelEditor::run()
     if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_S))
         myMap.saveMap("Levels/Lvl_Editor.txt");
 
-    if(GetMouseY()+16>screenHeight-100)
+    if(GetMouseY()+16>screenInfo.height-100)
         isObjectShown=false,state=selecting;
     else
     {
@@ -225,8 +235,8 @@ Rectangle RayJump::LevelEditor::getBigRectangle()
     int mouseX=GetMouseX();
     int mouseY=GetMouseY();
     if(isObjSpecial)
-        return obj->getHitbox(obj->makeXCentered(GetMouseX() ) ,
-                              obj->makeYCentered(GetMouseY() ) );
+        return obj->getHitbox(Object::makeExtra(obj->makeXCentered(GetMouseX() )
+                                                ,obj->makeYCentered(GetMouseY() ) ));
 
     int nrHorObjs= ERay::abs(mouseX-startX)/obj->hitbox.width + 1;
     int nrVerObjs= ERay::abs(mouseY-startY)/obj->hitbox.height + 1;
@@ -259,13 +269,13 @@ void RayJump::LevelEditor::placeAll()
         int mouseY=obj->makeYCentered(GetMouseY());
         if(obj->UID == myStart.UID)
         {
-            myStart.x=mouseX;
-            myStart.y=mouseY;
+            myStart.v[0]=mouseX;
+            myStart.v[1]=mouseY;
         }
         if(obj->UID == myFinish.UID)
         {
-            myFinish.x=mouseX;
-            myFinish.y=mouseY;
+            myFinish.v[0]=mouseX;
+            myFinish.v[1]=mouseY;
         }
         return;
     }
@@ -275,11 +285,22 @@ void RayJump::LevelEditor::placeAll()
     Rectangle rect=getBigRectangle();
     int width=obj->hitbox.width;
     int height=obj->hitbox.height;
+    int UID = AllObjects[currentObject]->UID;
+
     for(int i=0; width*i<rect.width; i++){
         for(int j=0; height*j<rect.height; j++)
         {
             std::pair<int,int> iPos= {rect.x+i*width,rect.y+j*height};
-            myMap.currentMap[iPos]=currentObject;
+
+            std::pair<int,int*>rez;
+            rez.first=UID;
+            rez.second = new int[obj->nrExtra];
+            std::copy(extraInfo, extraInfo+obj->nrExtra, rez.second);
+            rez.second[0]=iPos.first;
+            rez.second[1]=iPos.second;
+
+
+            myMap.lvlObj[iPos]=rez;
         }
     }
 }
@@ -296,8 +317,7 @@ void RayJump::LevelEditor::draw_content(int transparency)
     ClearBackground(BLUE);
 
     Rectangle BKGdrawnPart = { 0.0f, 0.0f, 256.0f, 256.0f };
-    Rectangle BKGdestination = {0,0,screenWidth,screenHeight};
-    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, BKGdestination);
+    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, screenInfo);
 
     drawLevel(transparency);
     drawSelector(transparency);
@@ -325,17 +345,17 @@ void RayJump::LevelEditor::drawHeldObj(int transparency)
         return;
 
     Object *obj= (AllObjects[currentObject]);
-    obj->draw(obj->makeXCentered(GetMouseX()),
-              obj->makeYCentered(GetMouseY()),
+    obj->draw(Object::makeExtra(obj->makeXCentered(GetMouseX()),
+                                obj->makeYCentered(GetMouseY())),
               transparency);
 }
 
 void RayJump::LevelEditor::drawSelector(int transparency)
 {
-    DrawRectangle(0,screenHeight-114,screenWidth,114, {237, 237, 157,(unsigned char)transparency});
+    DrawRectangle(0,screenInfo.height-114,screenInfo.width,114, {237, 237, 157,(unsigned char)transparency});
     Color T_BLACK=BLACK;
     T_BLACK.a=transparency;
-    DrawRectangle(0,screenHeight-120,screenWidth,5,T_BLACK);
+    DrawRectangle(0,screenInfo.height-120,screenInfo.width,5,T_BLACK);
     objSel.draw_content(transparency);
     buttons.draw_content(transparency);
 }

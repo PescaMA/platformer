@@ -4,6 +4,9 @@
 #include <cmath>
 #include <map>
 #include <vector>
+/// TO DO: make so not horrible.
+
+
 namespace RayJump
 {
 /****************************************************************************
@@ -12,8 +15,8 @@ namespace RayJump
 *
 ****************************************************************************/
     char doing[21]="MainMenu";
-    const int screenWidth=800;
-    const int screenHeight=600;
+    const int iscreenWidth=800;
+    const int iscreenHeight=600;
     int fps;
     int hideHitbox=false;
     int nrOfObjects;
@@ -29,11 +32,12 @@ namespace RayJump
 *
 ****************************************************************************/
     class Exit /// Generalized exit screen to main menu. Needs a parent in which to be used.
-    {
-        const float  X=screenWidth/8, Y=screenHeight/3.0f;
-        const float WIDTH=screenWidth*6/8.0f,HEIGHT=screenHeight/3.0f;
-        Button yes=Button("Yes",X+40,Y+HEIGHT-50,30,BLACK,RED);;
-        Button no=Button("No",X+WIDTH-50-MeasureText("No",30),Y+HEIGHT-50,30,BLACK,GREEN);
+    { /// TO DO FIX THIS UNCOMPLETED MES
+        ScaledRectangle Srect = ScaledRectangle(&screenInfo,15,85,20,80);
+        TxtAligned sure=TxtAligned("Are you sure you want to quit?",&(Srect.rect),50,10,30,BLACK);
+        ///DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
+        ButtonAligned yes=ButtonAligned("Yes",&(Srect.rect),10,90,30,BLACK,RED);
+        ButtonAligned no=ButtonAligned("No",&(Srect.rect),90,90,30,BLACK,GREEN);
         KBD_Btn_Move kbdMove;
     public:
         enum States {off, starting, going, returning, exiting};
@@ -41,18 +45,20 @@ namespace RayJump
         /// we can communicate with parent directly through state
 
         Exit();
+        void align();
         template <class drawable> void run(drawable background);
     };
 
     class Win_Screen
     {
-        TxtAligned message=TxtAligned("You won!",ERay::getWindowSize(),50,30,80,GREEN);
-        ButtonAligned restart=ButtonAligned("Restart",ERay::getWindowSize(),75,85,35,BLACK,RED);
+        TxtAligned message=TxtAligned("You won!",&screenInfo,50,30,80,GREEN);
+        ButtonAligned restart=ButtonAligned("Restart",&screenInfo,50,85,35,BLACK,RED);
         KBD_Btn_Move kbdMove;
         public:
         Win_Screen();
         template <class Game>
         void run(Game game);
+        void align();
         void draw();
     };
 
@@ -63,16 +69,17 @@ namespace RayJump
     };
     class MainMenu
     {
-         TxtAligned name=TxtAligned("RayJump",ERay::getWindowSize(),50,20,50,BLACK);
-         ButtonAligned playOn=ButtonAligned("Continue",ERay::getWindowSize(),50,40,30,BLACK,GREEN);
-         ButtonAligned lvlSelect=ButtonAligned("Level Select",ERay::getWindowSize(),50,50,30,BLACK,GREEN);
-         ButtonAligned lvlEditor=ButtonAligned("Level Editor",ERay::getWindowSize(),50,60,30,BLACK,GREEN);
-         ButtonAligned exit=ButtonAligned("Exit",ERay::getWindowSize(),50,70,30,BLACK,GREEN);
+         TxtAligned name=TxtAligned("RayJump",&screenInfo,50,20,50,BLACK);
+         ButtonAligned playOn=ButtonAligned("Continue",&screenInfo,50,40,30,BLACK,GREEN);
+         ButtonAligned lvlSelect=ButtonAligned("Level Select",&screenInfo,50,50,30,BLACK,GREEN);
+         ButtonAligned lvlEditor=ButtonAligned("Level Editor",&screenInfo,50,60,30,BLACK,GREEN);
+         ButtonAligned exit=ButtonAligned("Exit",&screenInfo,50,70,30,BLACK,GREEN);
          int keyboardSelected = 0;
          KBD_Btn_Move kbdMove;
     public:
         MainMenu();
         void run();
+        void recalcuate();
     private:
         void draw();
     };
@@ -108,6 +115,9 @@ namespace RayJump
     class Object
     {
         public:
+        enum extra{X,Y,nrExtra};
+        int extraCount = 2;
+
         bool canWJ=false;
         bool isSolid = true;
         Texture2D image;
@@ -117,18 +127,19 @@ namespace RayJump
         Rectangle hitbox;
 
         Object(){}
-        Directions getDir(int x,int y);
-        Rectangle getHitbox(int x,int y);
+        Directions getDir(int* v);
+        Rectangle getHitbox(int* v);
         Vector2 makeCentered(Vector2 coord);
         float makeXCentered(float X);
         float makeYCentered(float Y);
         Object(int UID,int page,Texture2D image,int imageX,Rectangle hitbox);
-        void virtual draw(int x,int y,int transparency=255);
-        void movePlayer(char const c[10],int x,int y);
-        void virtual collisionEffect(int x,int y){}
+        void virtual draw(int* v,int transparency=255);
+        void movePlayer(char const c[10],int* v);
+        void virtual collisionEffect(int* v){}
         void virtual specialEffect(){}
+        static int* makeExtra(int x,int y);
         Vector2 const virtual getImageSize();
-        bool collision(int x,int y,Rectangle entity);
+        bool collision(int* v,Rectangle entity);
     };
 
     class Block : public Object
@@ -136,13 +147,14 @@ namespace RayJump
         public:
         Block(){}
         Block(int UID,int page,Texture2D image,int imageX,Rectangle hitbox);
-        void collisionEffect(int x,int y);
+        void collisionEffect(int* v);
     };
 
     class Start : public Object
     {
         public:
-        int x=0,y=0;
+        enum extra{xa,ya,nrExtra};
+        int *v;
         bool exists=false;
         Start(){}
         Start(int UID,int page,Texture2D image,int imageX,Rectangle hitbox);
@@ -155,7 +167,8 @@ namespace RayJump
     class Finish : public RayJump::Object
     {
         public:
-        int x=100,y=0;
+        enum extra{xa,ya,nrExtra};
+        int *v;
         bool exists=false;
         bool won=false;
         Finish(){}
@@ -187,7 +200,8 @@ namespace RayJump
     {
     public:
         std::string next_level_name; /// TO DO: finish implementing next_lvl
-        std::map <std::pair<int,int>,int> currentMap;
+        std::map<std::pair<int,int>,std::pair<int,int *>> lvlObj;
+        typedef std::map<std::pair<int,int>,std::pair<int,int *>>::iterator objInfo;
         void saveMap(std::string fileName);
         void loadMap(std::string fileName,std::string next_level_name);
         int getUID(std::pair<int,int> coord);
@@ -250,7 +264,7 @@ namespace RayJump
         const int MAX_DASH_TIME=200; /// (in milisec)
 
         /**  WALL JUMP/CLING-ING  **/
-        const float WJ_MAX_DISTANCE=20; /// wall jump
+        const float WJ_MAX_DISTANCE=12; /// wall jump
         int WJ_direction=0;
         const float WC_MAX_DISTANCE=4; /// wall cling
         bool isClinging=false;
@@ -307,6 +321,7 @@ namespace RayJump
         int *lastOnPage;/// array
         int *currentPage; /// pointer
         int *currentObject;
+        int **extraInfo;
         bool *isObjSpecial;
         template <class a>
         ObjectSelector(a obj);
@@ -316,12 +331,12 @@ namespace RayJump
         int getN();
         float getX (int i);
         float getY ();
+        int *getInfo(int i);
     };
 
     class LevelEditor
     {
         int startX=0,startY=0;
-        bool isObjectShown=false;
         Color areaColor=WHITE;
         RayJump::Exit exit;
         ObjectSelector objSel;
@@ -329,8 +344,10 @@ namespace RayJump
         enum States{selecting,holding,building};
         States state;
     public:
+        bool isObjectShown=false;
         int currentObject;
         int currentPage;
+        int* extraInfo;
         bool isObjSpecial=false;
 
         LevelEditor();

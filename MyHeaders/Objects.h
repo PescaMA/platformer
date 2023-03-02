@@ -18,60 +18,67 @@ RayJump::Object::Object(int UID,int page,Texture2D image,int imageX,Rectangle hi
     this->imageX=imageX;
     this->hitbox=hitbox;
 }
-Directions RayJump::Object::getDir(int x,int y)
+Directions RayJump::Object::getDir(int* v)
 {
     Directions rez;
-    rez.up=y+hitbox.y;
-    rez.down=y+hitbox.y+hitbox.height;
-    rez.left=x+hitbox.x;
-    rez.right=x+hitbox.x+hitbox.width;
+    rez.up=v[Y]+hitbox.y;
+    rez.down=v[Y]+hitbox.y+hitbox.height;
+    rez.left=v[X]+hitbox.x;
+    rez.right=v[X]+hitbox.x+hitbox.width;
     return rez;
 }
 Vector2 RayJump::Object::makeCentered(Vector2 coord)
 {
     return {makeXCentered(coord.x),makeYCentered(coord.y)};
 }
-float RayJump::Object::makeXCentered(float X)
+float RayJump::Object::makeXCentered(float x)
 {
-    return X-hitbox.x-hitbox.width/2;
+    return x-hitbox.x-hitbox.width/2;
 }
-float RayJump::Object::makeYCentered(float Y)
+float RayJump::Object::makeYCentered(float y)
 {
-    return Y-hitbox.x-hitbox.width/2;
+    return y-hitbox.y-hitbox.height/2;
 }
-Rectangle RayJump::Object::getHitbox(int x,int y)
+Rectangle RayJump::Object::getHitbox(int *v)
 {
-    return {x+hitbox.x,y+hitbox.y,hitbox.width,hitbox.height};
+    return {v[X]+hitbox.x,v[Y]+hitbox.y,hitbox.width,hitbox.height};
 }
 Vector2 const RayJump::Object::getImageSize()
-{ /// a virtual function. most common size is 32x32. Only hight should change.
+{ /// a virtual function. most common size is 32x32. Only height should change.
     return {32,32};
 }
-void RayJump::Object::draw(int x,int y,int transparency)
+void RayJump::Object::draw(int *v,int transparency)
 {
     Color white=WHITE;
     white.a=transparency;
     Rectangle imageBoundaries= {(float)imageX,0,getImageSize().x,getImageSize().y};
-    Vector2 pos= {(float)x,(float)y};
+    Vector2 pos= {(float)v[X],(float)v[Y]};
     DrawTextureRec(image,imageBoundaries,pos,white);
     if(!hideHitbox)
     {
-        Rectangle objectRect= {x+hitbox.x,y+hitbox.y,hitbox.width,hitbox.height};
+        Rectangle objectRect= {v[X]+hitbox.x,v[Y]+hitbox.y,hitbox.width,hitbox.height};
         DrawRectangleLinesEx(objectRect,1,WHITE);
     }
 
 }
-
-bool RayJump::Object::collision(int x,int y,Rectangle entity)
+int* RayJump::Object::makeExtra(int x,int y)
 {
-    return CheckCollisionRecs(entity,this->getHitbox(x,y));
+    int *v = new int[nrExtra];
+    v[0]=x;
+    v[1]=y;
+    return v;
+}
+
+bool RayJump::Object::collision(int *v,Rectangle entity)
+{
+    return CheckCollisionRecs(entity,this->getHitbox(v));
 }
 
 /// Considering changing below function (too complex)
-void RayJump::Object::movePlayer(char const c[10],int x,int y)
+void RayJump::Object::movePlayer(char const c[10],int* v)
 {
     Directions playerDir=myPlayer.getPrevDir();
-    Directions objDir=getDir(x,y);
+    Directions objDir=getDir(v);
     float moveUp    = objDir.up - myPlayer.hitbox.y - myPlayer.hitbox.height;
     float moveDown  = objDir.down - myPlayer.hitbox.y;
     float moveLeft  = objDir.left - myPlayer.hitbox.x - myPlayer.hitbox.width;
@@ -91,7 +98,7 @@ void RayJump::Object::movePlayer(char const c[10],int x,int y)
         if(objDir.up-playerDir.down>-10
                 && !myMap.checkSolidCollisionsE(playerHitbox))
         {
-            return movePlayer("up",x,y);
+            return movePlayer("up",v);
         }
 
         myPlayer.xCoord=moveLeft;
@@ -105,7 +112,7 @@ void RayJump::Object::movePlayer(char const c[10],int x,int y)
         if(objDir.up-playerDir.down>-10
                 && !myMap.checkSolidCollisionsE(playerHitbox))
         {
-            return movePlayer("up",x,y);
+            return movePlayer("up",v);
         }
         myPlayer.xCoord=moveRight;
         myPlayer.xVelocity=0;
@@ -136,22 +143,22 @@ RayJump::Block::Block(int UID,int page,Texture2D image,int imageX,Rectangle hitb
 {
     canWJ=true;
 }
-void RayJump::Block::collisionEffect(int x,int y)
+void RayJump::Block::collisionEffect(int *v)
 {
     Directions playerDir=myPlayer.getPrevDir();
-    Directions objDir=getDir(x,y);
+    Directions objDir=getDir(v);
     int up   =  objDir.up - playerDir.down;
     int down =  playerDir.up - objDir.down;
     int left =  objDir.left - playerDir.right;
     int right = playerDir.left - objDir.right;
     if(up>=0)
-        movePlayer("up",x,y);
+        movePlayer("up",v);
     else if(down>=0)
-        movePlayer("down",x,y);
+        movePlayer("down",v);
     if(left>=0)
-        movePlayer("left",x,y);
+        movePlayer("left",v);
     else if(right>=0)
-        movePlayer("right",x,y);
+        movePlayer("right",v);
 }
 
 /*********************************************
@@ -160,11 +167,15 @@ void RayJump::Block::collisionEffect(int x,int y)
 *
 **********************************************/
 RayJump::Start::Start(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox)
-{isSolid = false;}
+{
+    isSolid = false;
+    v=new int[nrExtra];
+    v[0]=0,v[1]=0;
+}
 void RayJump::Start::specialEffect()
 {
-    myPlayer.xCoord=x+16-myPlayer.hitbox.x-myPlayer.hitbox.width/2;
-    myPlayer.yCoord=y+16-myPlayer.hitbox.y-myPlayer.hitbox.height/2;
+    myPlayer.xCoord=v[xa]+16-myPlayer.hitbox.x-myPlayer.hitbox.width/2;
+    myPlayer.yCoord=v[ya]+16-myPlayer.hitbox.y-myPlayer.hitbox.height/2;
 }
 Vector2 const RayJump::Start::getImageSize()
 {
@@ -172,11 +183,12 @@ Vector2 const RayJump::Start::getImageSize()
 }
 bool RayJump::Start::collision(Rectangle entity)
 {
-    return Object::collision(x,y,entity);
+
+    return Object::collision(v,entity);
 }
 void RayJump::Start::draw(int transparency)
 {
-    return Object::draw(x,y,transparency);
+    return Object::draw(v,transparency);
 }
 
 /*********************************************
@@ -185,14 +197,18 @@ void RayJump::Start::draw(int transparency)
 *
 **********************************************/
 RayJump::Finish::Finish(int UID,int page,Texture2D image,int imageX,Rectangle hitbox):Object(UID,page,image,imageX,hitbox)
-{ isSolid = false;}
+{
+    isSolid = false;
+    v=new int[nrExtra];
+    v[0]=100,v[1]=100;
+}
 void RayJump::Finish::draw(int transparency)
 {
-    Object::draw(x,y,transparency);
+    Object::draw(v,transparency);
 }
 bool RayJump::Finish::collision(Rectangle entity)
 {
-    return Object::collision(x,y,entity);
+    return Object::collision(v,entity);
 }
 void RayJump::Finish::collisionEffect()
 {

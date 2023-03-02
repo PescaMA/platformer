@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1675350555 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
+1677705025 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
 	<iostream>
 	<string.h>
 	"MyHeaders/RayJumpHeadears.h"
@@ -40,32 +40,32 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1677233808 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+1677704588 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
 	<map>
 
-1677234714 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1677795754 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
 	<vector>
 
-1677234737 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1677795142 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
 
-1677072049 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+1677706488 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
 
 1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
 	"raylib.h"
 
-1677233622 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
+1677706203 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
 	"raylib.h"
 	<chrono>
 	<iostream>
 	<string.h>
 
-1677167371 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
+1677795477 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
 	<map>
 	<utility>
 	<fstream>
 	<stdio.h>
 
-1677167427 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1677265147 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
 	"ExtendedRaylib.h"
 	"RayJumpHeadears.h"
 	<cmath>
@@ -90,7 +90,7 @@
 
 1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\settings.cpp
 
-1677175515 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
+1677795507 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
 	"ExtendedRaylib.h"
 	<cmath>
 	<map>

@@ -7,7 +7,9 @@
 **********************************************/
 void RayJump::Loader::load()
 {
-    InitWindow(screenWidth,screenHeight,"Platformer");
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE); /// unfortunately raylib (and glfw) has
+    /// a resize that pauses other actions so I can't fix black part when resizing.
+    InitWindow(iscreenWidth,iscreenHeight,"Platformer");
     fps=30;
     SetTargetFPS(fps);
     SetExitKey(0);

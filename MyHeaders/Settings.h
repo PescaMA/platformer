@@ -10,6 +10,11 @@ RayJump::Exit::Exit()
     int n=sizeof(all)/sizeof(all[0]);
     kbdMove=KBD_Btn_Move(all,n,false,1);
 }
+void RayJump::Exit::align()
+{
+    Srect.update();
+    sure.align();
+}
 template <class drawable>
 void RayJump::Exit::run(drawable background)
 {
@@ -39,15 +44,14 @@ void RayJump::Exit::run(drawable background)
         state =exiting;
         strcpy(doing,"MainMenu");
     }
-
+    align();
 
     kbdMove.run();
-    const char sure[]="Are you sure you want to quit?";
     BeginDrawing();
 
     background->draw_content(100); /// draw the parent's draw content as blurred background
-    DrawRectangle(X,Y,WIDTH,HEIGHT,GRAY);
-    DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
+    DrawRectangleRec(Srect.rect,GRAY);
+    sure.draw();
     yes.draw();
     no.draw();
 
@@ -68,10 +72,15 @@ RayJump::Win_Screen::Win_Screen()
 template <class Game>
 void RayJump::Win_Screen::run(Game game)
 {
+    align();
     kbdMove.run();
     if(restart.Lclicked())
         game->restart();
     draw();
+}
+void RayJump::Win_Screen::align()
+{
+    message.align();
 }
 void RayJump::Win_Screen::draw()
 {
@@ -112,6 +121,7 @@ void RayJump::MainMenu::run()
 
     if(exit.Lclicked())
         strcpy(doing,"Exiting");
+    recalcuate();
 
     /// if we want to leave
     if(strcmp(doing,"MainMenu"))
@@ -119,6 +129,10 @@ void RayJump::MainMenu::run()
 
     draw();
     kbdMove.run();
+}
+void RayJump::MainMenu::recalcuate()
+{
+    name.align();
 }
 void RayJump::MainMenu::draw()
 {

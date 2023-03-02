@@ -11,6 +11,7 @@ void RayJump::Loader::mainloop()
     while(!WindowShouldClose())
     {
         mouseAction=MOUSE_CURSOR_ARROW;
+        updateScreenSize();
 
         if( !strcmp(doing,"Game")) game.run();
         if( !strcmp(doing,"MainMenu")) mainMenu.run();

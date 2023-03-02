@@ -51,8 +51,7 @@ void RayJump::Game::draw_content(int transparency)
     ClearBackground(BLUE);
 
     Rectangle BKGdrawnPart = { 0.0f, 0.0f, 256.0f, 256.0f };
-    Rectangle BKGdestination = {0,0,screenWidth,screenHeight};
-    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, BKGdestination);
+    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, screenInfo);
 
     myMap.drawMap(transparency);
     myPlayer.draw(transparency);
@@ -73,16 +72,23 @@ void RayJump::Game::restart()
 void RayJump::MapObj::saveMap(std::string fileName)
 {
     std::ofstream fout(fileName);
-    fout<<"start "<<myStart.x<<' '<<myStart.y<<'\n';
-    fout<<"finish "<<myFinish.x<<' '<<myFinish.y<<'\n';
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        fout<<(it->first).first<<' '<<(it->first).second<<' '<<AllObjects[it->second]->UID<<'\n';
+    fout<<"start "<<myStart.v[Start::xa]<<' '<<myStart.v[Start::ya]<<'\n';
+    fout<<"finish "<<myFinish.v[Finish::xa]<<' '<<myFinish.v[Finish::ya]<<'\n';
+    for(objInfo it=lvlObj.begin();it!=lvlObj.end();it++)
+    {
+        int UID = (it->second).first;
+        fout<<UID;
+        int sz = AllObjects[UID_pairing[UID]]->extraCount;
+        for(int i=0;i<sz;i++)
+            fout<<' '<<(it->second).second[i];
+        fout<<'\n';
+    }
     fout.close();
 }
 void RayJump::MapObj::loadMap(std::string fileName,std::string next_level_name)
 {/// TO DO: add stuf 4 order
     /// loads map with a couple verifications for being only 1 start and finish
-    currentMap.clear();
+    lvlObj.clear();
     this->next_level_name=next_level_name;
     std::ifstream fin(fileName);
     if(!fin)
@@ -103,7 +109,8 @@ void RayJump::MapObj::loadMap(std::string fileName,std::string next_level_name)
         strcpy(doing,"Exiting");
         return;
     }
-    fin>>myStart.x>>myStart.y;
+    for(int i=0;i<Start::extra::nrExtra;i++)
+        fin>>myStart.v[i];
     fin>>c;
     if(strcmp(c,"finish"))
     {
@@ -111,22 +118,25 @@ void RayJump::MapObj::loadMap(std::string fileName,std::string next_level_name)
         strcpy(doing,"Exiting");
         return;
     }
-    fin>>myFinish.x>>myFinish.y;
+    for(int i=0;i<Finish::extra::nrExtra;i++)
+        fin>>myStart.v[i];
 
     myPlayer.reset();
 
-    std::pair<int,int> coord;
     int UID;
-    while(fin>>coord.first)
+    while(fin>>UID)
     {
-        fin>>coord.second>>UID;
         if(UID==myStart.UID || UID==myFinish.UID)
         {
             std::cout<<"\n\nError, multiple starts or finishes provided.\n\n";
             strcpy(doing,"Exiting");
             return;
         }
-        currentMap[coord]=UID_pairing[UID];
+        int sz = AllObjects[UID_pairing[UID]]->extraCount;
+        int *v=new int[sz];
+        for(int i=0;i<sz;i++)
+            fin>>v[i];
+        lvlObj[{v[0],v[1]}]={UID,v};
     }
     fin.close();
 }
@@ -136,11 +146,11 @@ void RayJump::MapObj::restartMap()
 }
 int RayJump::MapObj::getUID(std::pair<int,int> coord)
 {
-    if(currentMap.find(coord)!= currentMap.end())
-        return AllObjects[currentMap[coord]]->UID;
-    if(myStart.x == coord.first && myStart.y == coord.second)
+    if(lvlObj.find(coord)!=lvlObj.end())
+        return lvlObj[coord].first;
+    if(myStart.v[Start::xa] == coord.first && myStart.v[Start::ya] == coord.second)
         return myStart.UID;
-    if(myFinish.x == coord.first && myFinish.y == coord.second)
+    if(myFinish.v[Finish::xa] == coord.first && myFinish.v[Finish::ya] == coord.second)
         return myFinish.UID;
     return -9999;
 }
@@ -149,32 +159,40 @@ bool RayJump::MapObj::onlyUID(Rectangle rect, int UID)
     std::vector <std::pair<int,int>> collisions;
     collisions = getAllCollisionsE(rect);
     for(int unsigned i=0;i<collisions.size();i++)
-        if(myMap.getUID(collisions[i]) != UID)
+        if(getUID(collisions[i]) != UID)
             return false;
 
     return true;
 }
 void RayJump::MapObj::deletePair(std::pair<int,int> coord)
 {
-    currentMap.erase(currentMap.find(coord));
+    if(lvlObj.find(coord)!=lvlObj.end())
+        lvlObj.erase(lvlObj.find(coord));
 }
 void RayJump::MapObj::deleteClick(Vector2 pos)
 {
     Rectangle entity= {pos.x,pos.y,1,1};
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+
+    for(objInfo it=lvlObj.begin(); it!=lvlObj.end(); it++)
+    {
+        if(AllObjects[UID_pairing[(it->second).first]]->collision((it->second).second, entity))
         {
-            currentMap.erase(it);
-            return;
+            lvlObj.erase(it);
         }
+    }
+
 }
 
 void RayJump::MapObj::drawMap(int transparency)
 {
     myStart.draw(transparency);
-    myFinish.draw(transparency);
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
+    myFinish.draw(transparency);///TO DO: fix world hunger or this code
+    for(objInfo it=lvlObj.begin(); it!=lvlObj.end(); it++)
+    {
+        AllObjects[UID_pairing[(it->second).first]]->draw((it->second).second,transparency);
+    }
+
+
 }
 
 bool RayJump::MapObj::checkAllCollisionsE(Rectangle entity)
@@ -183,16 +201,16 @@ bool RayJump::MapObj::checkAllCollisionsE(Rectangle entity)
         return true;
     if(myStart.collision(entity))
         return true;
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+    for(objInfo it=lvlObj.begin(); it!=lvlObj.end(); it++)
+        if(AllObjects[UID_pairing[(it->second).first]]->collision((it->second).second, entity))
             return true;
     return false;
 }
 bool RayJump::MapObj::checkSolidCollisionsE(Rectangle entity)
 {
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            if(AllObjects[it->second]->isSolid)
+    for(objInfo it=lvlObj.begin(); it!=lvlObj.end(); it++)
+        if(AllObjects[UID_pairing[(it->second).first]]->collision((it->second).second, entity))
+            if(AllObjects[UID_pairing[(it->second).first]]->isSolid)
                 return true;
     return false;
 }
@@ -200,11 +218,11 @@ std::vector<std::pair<int,int>> RayJump::MapObj::getAllCollisionsE(Rectangle ent
 {
     std::vector <std::pair<int,int>> result;
     if(myFinish.collision(entity))
-        result.push_back({myFinish.x,myFinish.y});
+        result.push_back({myFinish.v[Finish::xa],myFinish.v[Finish::ya]});
     if(myStart.collision(entity))
-        result.push_back({myStart.x,myStart.y});
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
+        result.push_back({myStart.v[Start::xa],myStart.v[Start::ya]});
+    for(objInfo it=lvlObj.begin(); it!=lvlObj.end(); it++)
+        if(AllObjects[UID_pairing[(it->second).first]]->collision((it->second).second, entity))
             result.push_back(it->first);
     return result;
 }
@@ -212,14 +230,13 @@ void RayJump::MapObj::checkPlayerCollisions()
 {
     if(myFinish.collision(myPlayer.getHitbox()))
         myFinish.collisionEffect();
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
+    for(objInfo it=lvlObj.begin(); it!=lvlObj.end(); it++)
     {
-        Object *obj=AllObjects[it->second];
-        if(obj->collision((it->first).first, (it->first).second, myPlayer.getHitbox()))
-            obj->collisionEffect((it->first).first, (it->first).second);
+        Object *obj=AllObjects[UID_pairing[(it->second).first]];
+        if(obj->collision((it->second).second, myPlayer.getHitbox()))
+            obj->collisionEffect((it->second).second);
         if(obj->canWJ)
-            myPlayer.tryWallJump(obj->getDir(it->first.first,it->first.second));
-
+            myPlayer.tryWallJump(obj->getDir((it->second).second));
     }
 
     myPlayer.newMovement();

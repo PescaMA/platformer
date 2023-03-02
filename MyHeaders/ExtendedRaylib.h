@@ -9,6 +9,11 @@
 #include <string.h>
 
 int mouseAction;
+Rectangle screenInfo;
+void updateScreenSize()
+{
+    screenInfo = {0,0, (float)GetScreenWidth(),(float)GetScreenHeight()};
+}
 
 long long getTimeMS();
 long long getTimeMCS();
@@ -20,6 +25,7 @@ struct ButtonTxt;
 struct ButtonOnOff;
 struct ButtonInput;
 struct FixedButton;
+struct ScaledRectangle;
 class KBD_Btn_Move;
 class GameTickRate;
 struct Directions
@@ -78,12 +84,11 @@ namespace ERay
     }
     void align(float &coord,int startCoord,int length,int percent,int textSize)
     {
-        int oldCoord=coord;
-        coord=coord + length*percent/100 -textSize/2;
-        if(coord + textSize > oldCoord + length)
-            coord = oldCoord + length - textSize;
-        if(coord<oldCoord)
-            coord=oldCoord;
+        coord=startCoord + length*percent/100 -textSize/2;
+        if(coord + textSize > startCoord + length)
+            coord = startCoord + length - textSize;
+        if(coord<startCoord)
+            coord=startCoord;
     }
     void drawTextureDest(Texture2D asset, Rectangle drawnPart, Rectangle destination)
     {
@@ -122,15 +127,20 @@ struct Txt
 };
 struct TxtAligned : public Txt
 { /// remember
-    TxtAligned(char const text[105],Rectangle container,int xPercent,int yPercent,int fontSize,Color color)
-    :Txt(text,container.x,container.y,fontSize,color)
+    Rectangle *container;
+    float xPercent,yPercent;
+    TxtAligned(char const text[105],Rectangle *container,float xPercent,float yPercent,int fontSize,Color color)
+    :Txt(text,container->x,container->y,fontSize,color)
     {
-        align(x,container.x,container.width,xPercent,MeasureText(text,Fsz));
-        align(y,container.y,container.height,yPercent,Fsz);
+        this->container = container;
+        this->xPercent = xPercent;
+        this->yPercent = yPercent;
+        align();
     }
-    void align(float &coord,int startCoord,int length,int percent,int textSize)
+    void align()
     {
-        ERay::align(coord,startCoord,length,percent,textSize);
+        ERay::align(x,container->x,container->width,xPercent,MeasureText(text,Fsz));
+        ERay::align(y,container->y,container->height,yPercent,Fsz);
     }
 };
 struct Button
@@ -143,18 +153,16 @@ struct Button
     }normalColor,hoverColor;
     int fontSize;
     float thickness;
-    bool isHovering;
-    bool forceHover;
+    bool isHovering = false;
+    bool forceHover = false;
     Button(){}
     Button(char const text[],int startX,int startY,int fontSize,Color color,Color hoverColor)
     {
-        isHovering=false;
         strcpy(this->text,text);
         thickness=std::max(1,fontSize/10);
         this->fontSize=fontSize;
         rect= {(float)startX,(float)startY,
         (float)MeasureText(text,fontSize)+10+thickness*2 , fontSize+10+thickness*2};
-        forceHover=false;
         normalColor.text=color;
         (this->hoverColor).text=hoverColor;
         normalColor.background=(this->hoverColor).background=BLANK;
@@ -214,16 +222,26 @@ struct Button
 };
 struct ButtonAligned : public Button
 {
+    int xPercent,yPercent;
+    Rectangle *container;
     ButtonAligned(){}
-    ButtonAligned(char const text[105],Rectangle container,int xPercent,int yPercent,int fontSize,Color color,Color hoverColor)
-    :Button(text,container.x,container.y,fontSize,color,hoverColor)
+    ButtonAligned(char const text[105],Rectangle *container,int xPercent,int yPercent,int fontSize,Color color,Color hoverColor)
+    :Button(text,container->x,container->y,fontSize,color,hoverColor)
     {
-        align(rect.x,container.x,container.width,xPercent,rect.width);
-        align(rect.y,container.y,container.height,yPercent,rect.height);
+        this->xPercent=xPercent;
+        this->yPercent=yPercent;
+        this->container=container;
+        align();
     }
-    void align(float &coord,int startCoord,int length,int percent,int textSize)
+    bool Lclicked()
+    { /// so it auto aligns when checking for clicked
+        align();
+        return Button::Lclicked();
+    }
+    void align()
     {
-        ERay::align(coord,startCoord,length,percent,textSize);
+        ERay::align(rect.x,container->x,container->width,xPercent,rect.width);
+        ERay::align(rect.y,container->y,container->height,yPercent,rect.height);
     }
 };
 struct ButtonTxt : public Button
@@ -334,6 +352,29 @@ struct FixedButton : public Button
         float centerX=rect.x+(rect.width/2-MeasureText(text,fontSize)/2);
         float centerY=rect.y+(rect.height/2-fontSize/2.0);
         DrawText(text,centerX,centerY,fontSize,color.text);
+    }
+};
+struct ScaledRectangle
+{
+    Rectangle rect;
+    Rectangle *parent;
+    float xPrc1,xPrc2,yPrc1,yPrc2;
+    ScaledRectangle(Rectangle *parent,float startingXpercent,float endingXpercent,float startingYpercent,float endingYpercent)
+    {
+        this->parent = parent;
+        xPrc1 = startingXpercent;
+        xPrc2 = endingXpercent;
+        yPrc1 = startingYpercent;
+        yPrc2 = endingYpercent;
+        update();
+    }
+    void update()
+    {
+        float x1 = parent->x + parent->width * xPrc1 / 100;
+        float y1 = parent->y + parent->height * yPrc1 / 100;
+        float x2 = parent->x + parent->width * xPrc2 / 100;
+        float y2 = parent->y + parent->height * yPrc2 / 100;
+        rect={x1,y1,x2-x1,y2-y1};
     }
 };
 class KBD_Btn_Hold

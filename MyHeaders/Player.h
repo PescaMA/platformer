@@ -33,6 +33,7 @@ void RayJump::Player::checkJump()
     {
         yVelocity=-JUMP_VELOCITY;
         isGrounded=false;
+        isdashing = false;
         return;
     }
     if(WJ_direction && IsKeyPressed(KEY_SPACE))
@@ -54,6 +55,7 @@ void RayJump::Player::checkJump()
             xVelocity=WJ_direction*MAX_X_VELOCITY_PER_FRAME*0.9;
             yVelocity=-JUMP_VELOCITY*0.75;
         }
+        isdashing = false;
 
     }
 }
@@ -158,8 +160,8 @@ void RayJump::Player::exitDash()
     if(getTimeMS()-dashTime>MAX_DASH_TIME)
     {
         isdashing=false;
-        xVelocity/=2;
-        yVelocity/=2;
+        xVelocity*=0.8;
+        yVelocity*=0.8;
     }
 
 }
@@ -224,6 +226,7 @@ void RayJump::Player::reset()
     xFacing=1;
     XDirection=0;
     isdashing=false;
+    dashes = 1;
     presume();
 }
 
