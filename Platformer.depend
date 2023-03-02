@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1675350555 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
+1678732533 source:d:\code blocks\probleme interesante\raylib\platformer\main.cpp
 	<iostream>
 	<string.h>
 	"MyHeaders/RayJumpHeadears.h"
@@ -40,34 +40,40 @@
 	"LevelEditor.h"
 	"Settings.h"
 
-1677233808 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
-	<map>
+1678737351 d:\code blocks\probleme interesante\raylib\platformer\myheaders\loader.h
+	"globals.h"
+	"Settings.h"
 
-1677234714 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+1678731474 d:\code blocks\probleme interesante\raylib\platformer\myheaders\game.h
+	"ExtendedRaylib.h"
+	"Settings.h"
+	"globals.h"
 	<vector>
 
-1677234737 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+1678737617 d:\code blocks\probleme interesante\raylib\platformer\myheaders\leveleditor.h
+	"ExtendedRaylib.h"
+	"Settings.h"
+	"globals.h"
 
-1677072049 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+1678738003 d:\code blocks\probleme interesante\raylib\platformer\myheaders\settings.h
+	"ExtendedRaylib.h"
 
 1659371524 d:\code blocks\probleme interesante\raylib\platformer\myheaders\basicclasses.h
 	"raylib.h"
 
-1677233622 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
+1678724337 d:\code blocks\probleme interesante\raylib\platformer\myheaders\extendedraylib.h
 	"raylib.h"
 	<chrono>
 	<iostream>
 	<string.h>
 
-1677167371 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
-	<map>
-	<utility>
-	<fstream>
-	<stdio.h>
-
-1677167427 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+1678722410 d:\code blocks\probleme interesante\raylib\platformer\myheaders\objects.h
 	"ExtendedRaylib.h"
-	"RayJumpHeadears.h"
+	"globals.h"
+
+1678722410 d:\code blocks\probleme interesante\raylib\platformer\myheaders\player.h
+	"ExtendedRaylib.h"
+	"globals.h"
 	<cmath>
 
 1668530977 d:\code blocks\probleme interesante\raylib\platformer\myheaders\mapobj.h
@@ -76,29 +82,50 @@
 	<fstream>
 	<stdio.h>
 
-1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\extendereraylib.cpp
+1678724337 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\extendereraylib.cpp
+	"../MyHeaders/ExtendedRaylib.h"
 
-1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\game.cpp
-
-1676975619 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\leveleditor.cpp
-
-1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\loader.cpp
-
-1675278611 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\objects.cpp
-
-1675279067 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\player.cpp
-
-1675198763 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\settings.cpp
-
-1677175515 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
-	"ExtendedRaylib.h"
-	<cmath>
-	<map>
+1678732372 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\game.cpp
+	"../MyHeaders/RayJumpHeadears.h"
+	<fstream>
 	<vector>
-	"Settings.h"
-	"Objects.h"
+	<map>
+
+1678732270 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\leveleditor.cpp
+	"../MyHeaders/RayJumpHeadears.h"
+
+1678732330 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\loader.cpp
+	<map>
+	"../MyHeaders/RayJumpHeadears.h"
+
+1678732345 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\objects.cpp
+	"../MyHeaders/RayJumpHeadears.h"
+	<map>
+	<utility>
+	<fstream>
+	<stdio.h>
+
+1678737081 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\player.cpp
+	"../MyHeaders/RayJumpHeadears.h"
+
+1678728757 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\settings.cpp
+	"../MyHeaders/RayJumpHeadears.h"
+
+1678737299 d:\code blocks\probleme interesante\raylib\platformer\myheaders\rayjumpheadears.h
 	"Loader.h"
+	"Settings.h"
+	"LevelEditor.h"
+	"Objects.h"
 	"Game.h"
 	"Player.h"
-	"LevelEditor.h"
+
+1678722827 d:\code blocks\probleme interesante\raylib\platformer\myheaders\globals.h
+	<map>
+	<raylib.h>
+
+1678737217 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\rayjumpheadears.cpp
+	"../MyHeaders/RayJumpHeadears.h"
+
+1678737230 source:d:\code blocks\probleme interesante\raylib\platformer\myheaderscpp\globals.cpp
+	"../MyHeaders/globals.h"
 

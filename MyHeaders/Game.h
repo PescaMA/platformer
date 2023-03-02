@@ -1,239 +1,51 @@
-/*********************************************
-*
-*                   G A M E
-*
-**********************************************/
+#ifndef GAME_H
+#define GAME_H
+#include "ExtendedRaylib.h"
+#include "Settings.h"
+#include "globals.h"
 #include <vector>
-void RayJump::Game::commands()
-{
-    if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_H))
-        hideHitbox=!hideHitbox;
-    if(IsKeyDown(KEY_LEFT_SHIFT) && IsKeyPressed(KEY_R))
-        myPlayer.reset();
-}
-void RayJump::Game::run()
-{
-    if(myFinish.won==true)
-    {
-        winScreen.run(this);
-        return;
-    }
-
-    if(exit.state == Exit::States::starting)
-        gameTick.pause();
-    exit.run(this);
-    if(exit.state != Exit::States::off)
-        return;
-
-    commands();
-    myPlayer.checkInput();
-
-    for(int i=gameTick.getFrames()-1; i>=0; i--)
-    {///skipping some collision checks for very high frame rates. End with 0 so modulo 5 works at least once.
-        myPlayer.move();
-        if(i%5==0)
-        {
-            myPlayer.presume();
-            myMap.checkPlayerCollisions();
-        }
-    }
-    draw();
-}
-void RayJump::Game::draw()
-{
-
-    BeginDrawing();
-    draw_content(255);
-    EndDrawing();
-}
-void RayJump::Game::draw_content(int transparency)
-{
-    ClearBackground(BLUE);
-
-    Rectangle BKGdrawnPart = { 0.0f, 0.0f, 256.0f, 256.0f };
-    Rectangle BKGdestination = {0,0,screenWidth,screenHeight};
-    ERay::drawTextureDest(ASSET_BACKGROUND, BKGdrawnPart, BKGdestination);
-
-    myMap.drawMap(transparency);
-    myPlayer.draw(transparency);
-}
-void RayJump::Game::restart()
-{
-    myFinish.won = false;
-    myPlayer.reset();
-    myMap.restartMap();
-}
-
-/*********************************************
+/****************************************************************************
 *
-*               MAP OBJECT
+*        G A M E - Game, MapObj
 *
-**********************************************/
-
-void RayJump::MapObj::saveMap(std::string fileName)
+****************************************************************************/
+namespace RayJump
 {
-    std::ofstream fout(fileName);
-    fout<<"start "<<myStart.x<<' '<<myStart.y<<'\n';
-    fout<<"finish "<<myFinish.x<<' '<<myFinish.y<<'\n';
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        fout<<(it->first).first<<' '<<(it->first).second<<' '<<AllObjects[it->second]->UID<<'\n';
-    fout.close();
-}
-void RayJump::MapObj::loadMap(std::string fileName,std::string next_level_name)
-{/// TO DO: add stuf 4 order
-    /// loads map with a couple verifications for being only 1 start and finish
-    currentMap.clear();
-    this->next_level_name=next_level_name;
-    std::ifstream fin(fileName);
-    if(!fin)
+    class Game
     {
-        if(fileName != "Levels/Lvl_Editor.txt")
-        {
-            std::cout<<"\n\n Error, file does not exist!\n\n";
-            strcpy(doing,"Exiting");
-        }
-        return;
-    }
+        Exit exit;
+        Win_Screen winScreen;
+        GameTickRate gameTick=GameTickRate(gameTicks);
+    public:
+        void commands();
+        void run();
+        void draw();
+        void draw_content(int transparency);
+        void restart();
+    };
 
-    char c[10];
-    fin>>c;
-    if(strcmp(c,"start"))
+    class MapObj
     {
-        std::cout<<"\n\nError, no start provided\n\n";
-        strcpy(doing,"Exiting");
-        return;
-    }
-    fin>>myStart.x>>myStart.y;
-    fin>>c;
-    if(strcmp(c,"finish"))
-    {
-        std::cout<<"\n\nError, no finish provided\n\n";
-        strcpy(doing,"Exiting");
-        return;
-    }
-    fin>>myFinish.x>>myFinish.y;
+    public:
+        typedef std::pair<int,int> coord;
 
-    myPlayer.reset();
-
-    std::pair<int,int> coord;
-    int UID;
-    while(fin>>coord.first)
-    {
-        fin>>coord.second>>UID;
-        if(UID==myStart.UID || UID==myFinish.UID)
-        {
-            std::cout<<"\n\nError, multiple starts or finishes provided.\n\n";
-            strcpy(doing,"Exiting");
-            return;
-        }
-        currentMap[coord]=UID_pairing[UID];
-    }
-    fin.close();
+        std::string next_level_name; /// TO DO: finish implementing next_lvl
+        std::map<std::pair<int,int>,std::pair<int,int *>> lvlObj;
+        typedef std::map<coord,std::pair<int,int *>>::iterator objInfo;
+        void saveMap(std::string fileName);
+        void loadMap(std::string fileName,std::string next_level_name);
+        int getUID(std::pair<int,int> coord);
+        void restartMap();
+        void drawMap(int transparency);
+        bool onlyUID(Rectangle rect, int UID);
+        void checkPlayerCollisions();
+        bool checkAllCollisionsE(Rectangle entity);
+        bool checkAllCollisionsMouse();
+        bool checkSolidCollisionsE(Rectangle entity);
+        std::vector<std::pair<int,int>> getAllCollisionsE(Rectangle entity);
+        std::pair<int,int> getCollisionMouse();
+        void deletePair(std::pair<int,int> coord);
+        void deleteClick(Vector2 pos);
+    };
 }
-void RayJump::MapObj::restartMap()
-{
-    /// great function so far
-}
-int RayJump::MapObj::getUID(std::pair<int,int> coord)
-{
-    if(currentMap.find(coord)!= currentMap.end())
-        return AllObjects[currentMap[coord]]->UID;
-    if(myStart.x == coord.first && myStart.y == coord.second)
-        return myStart.UID;
-    if(myFinish.x == coord.first && myFinish.y == coord.second)
-        return myFinish.UID;
-    return -9999;
-}
-bool RayJump::MapObj::onlyUID(Rectangle rect, int UID)
-{
-    std::vector <std::pair<int,int>> collisions;
-    collisions = getAllCollisionsE(rect);
-    for(int unsigned i=0;i<collisions.size();i++)
-        if(myMap.getUID(collisions[i]) != UID)
-            return false;
-
-    return true;
-}
-void RayJump::MapObj::deletePair(std::pair<int,int> coord)
-{
-    currentMap.erase(currentMap.find(coord));
-}
-void RayJump::MapObj::deleteClick(Vector2 pos)
-{
-    Rectangle entity= {pos.x,pos.y,1,1};
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-        {
-            currentMap.erase(it);
-            return;
-        }
-}
-
-void RayJump::MapObj::drawMap(int transparency)
-{
-    myStart.draw(transparency);
-    myFinish.draw(transparency);
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        AllObjects[(it->second)]->draw((it->first).first,(it->first).second,transparency);
-}
-
-bool RayJump::MapObj::checkAllCollisionsE(Rectangle entity)
-{
-    if(myFinish.collision(entity))
-        return true;
-    if(myStart.collision(entity))
-        return true;
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            return true;
-    return false;
-}
-bool RayJump::MapObj::checkSolidCollisionsE(Rectangle entity)
-{
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            if(AllObjects[it->second]->isSolid)
-                return true;
-    return false;
-}
-std::vector<std::pair<int,int>> RayJump::MapObj::getAllCollisionsE(Rectangle entity)
-{
-    std::vector <std::pair<int,int>> result;
-    if(myFinish.collision(entity))
-        result.push_back({myFinish.x,myFinish.y});
-    if(myStart.collision(entity))
-        result.push_back({myStart.x,myStart.y});
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-        if(AllObjects[it->second]->collision((it->first).first, (it->first).second, entity))
-            result.push_back(it->first);
-    return result;
-}
-void RayJump::MapObj::checkPlayerCollisions()
-{
-    if(myFinish.collision(myPlayer.getHitbox()))
-        myFinish.collisionEffect();
-    for(std::map <std::pair<int,int>,int>::iterator it=currentMap.begin(); it!=currentMap.end(); it++)
-    {
-        Object *obj=AllObjects[it->second];
-        if(obj->collision((it->first).first, (it->first).second, myPlayer.getHitbox()))
-            obj->collisionEffect((it->first).first, (it->first).second);
-        if(obj->canWJ)
-            myPlayer.tryWallJump(obj->getDir(it->first.first,it->first.second));
-
-    }
-
-    myPlayer.newMovement();
-}
-bool RayJump::MapObj::checkAllCollisionsMouse()
-{
-    return checkAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0});
-}
-std::pair<int,int> RayJump::MapObj::getCollisionMouse()
-{
-    std::vector<std::pair<int,int>> collisions;
-    collisions = getAllCollisionsE({(float)GetMouseX(),(float)GetMouseY(),0,0});
-    if(collisions.size()>0)
-        return collisions[0];
-    else
-        return {-99999,-99999};
-}
+#endif // GAME_H
