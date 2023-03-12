@@ -1,22 +1,30 @@
+/****************************************************************************
+*
+*        Settings - Event Screens, Settings, Main Menu
+*
+****************************************************************************/
+#ifndef Settings_H
+#define Settings_H
+#include "ExtendedRaylib.h"
+namespace RayJump
+{
+    class Exit /// Generalized exit screen to main menu. Needs a parent in which to be used.
+    { /// TO DO FIX THIS UNCOMPLETED MES
+        ScaledRectangle Srect = ScaledRectangle(&screenInfo,15,85,20,80);
+        TxtAligned sure=TxtAligned("Are you sure you want to quit?",&(Srect.rect),50,10,30,BLACK);
+        ///DrawText(sure,X+WIDTH/2-MeasureText(sure,29)/2,Y+20,29,BLACK);
+        ButtonAligned yes=ButtonAligned("Yes",&(Srect.rect),10,90,30,BLACK,RED);
+        ButtonAligned no=ButtonAligned("No",&(Srect.rect),90,90,30,BLACK,GREEN);
+        KBD_Btn_Move kbdMove;
+    public:
+        enum States {off, starting, going, returning, exiting};
+        States state = off;
+        /// we can communicate with parent directly through state
 
-/*********************************************
-*
-*               E X I T
-*
-**********************************************/
-RayJump::Exit::Exit()
-{
-    Button *all[]= {&yes,&no};
-    int n=sizeof(all)/sizeof(all[0]);
-    kbdMove=KBD_Btn_Move(all,n,false,1);
-}
-void RayJump::Exit::align()
-{
-    Srect.update();
-    sure.align();
-}
-template <class drawable>
-void RayJump::Exit::run(drawable background)
+        Exit();
+        void align();
+        template <class drawable>
+void run(drawable background)
 {
     /// if we want to return to parent or main menu we close exit menu
     if(state == returning || state == exiting)
@@ -57,20 +65,17 @@ void RayJump::Exit::run(drawable background)
 
     EndDrawing();
 }
+    };
 
-/*********************************************
-*
-*               WIN SCREEN
-*
-**********************************************/
-RayJump::Win_Screen::Win_Screen()
-{
-    Button *all[]= {&restart};
-    int n=sizeof(all)/sizeof(all[0]);
-    kbdMove=KBD_Btn_Move(all,n,false,0);
-}
-template <class Game>
-void RayJump::Win_Screen::run(Game game)
+    class Win_Screen
+    {
+        TxtAligned message=TxtAligned("You won!",&screenInfo,50,30,80,GREEN);
+        ButtonAligned restart=ButtonAligned("Restart",&screenInfo,50,85,35,BLACK,RED);
+        KBD_Btn_Move kbdMove;
+        public:
+        Win_Screen();
+        template <class Game>
+void run(Game game)
 {
     align();
     kbdMove.run();
@@ -78,78 +83,30 @@ void RayJump::Win_Screen::run(Game game)
         game->restart();
     draw();
 }
-void RayJump::Win_Screen::align()
-{
-    message.align();
-}
-void RayJump::Win_Screen::draw()
-{
-    BeginDrawing();
-    ClearBackground(BLUE);
-    message.draw();
-    message.underline();
-    restart.draw();
-    EndDrawing();
-}
+        void align();
+        void draw();
+    };
 
-/*********************************************
-*
-*                 MAIN MENU
-*
-**********************************************/
-RayJump::MainMenu::MainMenu()
-{
-    Button *bList[]= {&playOn,&lvlSelect,&lvlEditor,&exit};
-    int n=sizeof(bList)/sizeof(bList[0]);
-    kbdMove=KBD_Btn_Move(bList,n);
-}
-void RayJump::MainMenu::run()
-{
-    if(playOn.Lclicked())
+    class Settings
     {
-        strcpy(doing,"Game");
-        Loader::loadMap("Levels/Lvl_Editor.txt");
-        ///Loader::loadMap("Levels/Lvl_1.txt");
-    }
-    if(lvlSelect.Lclicked())
-        strcpy(doing,"LevelSelect");
-    if(lvlEditor.Lclicked())
+    public:
+        void static run();
+    };
+    class MainMenu
     {
-        strcpy(doing,"LevelEditor");
-        Loader::loadMap("Levels/Lvl_Editor.txt");
-    }
-
-    if(exit.Lclicked())
-        strcpy(doing,"Exiting");
-    recalcuate();
-
-    /// if we want to leave
-    if(strcmp(doing,"MainMenu"))
-        kbdMove.reset();
-
-    draw();
-    kbdMove.run();
+         TxtAligned name=TxtAligned("RayJump",&screenInfo,50,20,50,BLACK);
+         ButtonAligned playOn=ButtonAligned("Continue",&screenInfo,50,40,30,BLACK,GREEN);
+         ButtonAligned lvlSelect=ButtonAligned("Level Select",&screenInfo,50,50,30,BLACK,GREEN);
+         ButtonAligned lvlEditor=ButtonAligned("Level Editor",&screenInfo,50,60,30,BLACK,GREEN);
+         ButtonAligned exit=ButtonAligned("Exit",&screenInfo,50,70,30,BLACK,GREEN);
+         int keyboardSelected = 0;
+         KBD_Btn_Move kbdMove;
+    public:
+        MainMenu();
+        void run();
+        void recalcuate();
+    private:
+        void draw();
+    };
 }
-void RayJump::MainMenu::recalcuate()
-{
-    name.align();
-}
-void RayJump::MainMenu::draw()
-{
-    BeginDrawing();
-    ClearBackground(YELLOW);
-    name.draw(true);
-    playOn.draw();
-    lvlSelect.draw();
-    lvlEditor.draw();
-    exit.draw();
-    EndDrawing();
-}
-
-/*********************************************
-*
-*                SETTINGS
-*
-**********************************************/
-/// phenomenal
-void RayJump::Settings::run() {}
+#endif // Settings_H
